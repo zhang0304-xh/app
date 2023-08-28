@@ -7,8 +7,23 @@ from database.models import *
 
 
 class MyResource(Resource):
-    def get(self):
-        return jsonify(message="个人中心页面")
+    def get(self, uid):
+        if not uid:
+            return {'message': '未登录'}#用message记录用户登录状态,若未登录 不会传用户id
+        user = User.query.filter(User.id == uid)#查找对应的用户信息
+        # 生成json格式数据
+        infoJson = {}
+        dataJson = json.loads(json.dumps(infoJson))
+        for i in user:
+            dataJson['uid'] = i.uid
+            dataJson['message'] = '已登录'
+            dataJson['username'] = i.username
+            dataJson['password'] = i.password
+            dataJson['avatar'] = i.avatar
+            dataJson['phoneNumber'] = i.phoneNumber
+            ansJson = json.dumps(dataJson, ensure_ascii=False)
+        return ansJson
+        # return jsonify(message="个人中心页面")
 
 class LoginResource(Resource):
     def post(self):
@@ -37,7 +52,7 @@ class FailLoginResource(Resource):
     def get(self):
         return jsonify(message="unlogin")
 
-class RegisterResource(Resource):
+class RegisterResource(Resource):#注册
     def get(self):
         return render_template('register.html')
 
@@ -51,8 +66,8 @@ class RegisterResource(Resource):
         db.session.add(u1)
         db.session.commit()
         #生成json格式数据
-        indoJson = {}
-        dataJson = json.loads(json.dumps(indoJson))
+        infoJson = {}
+        dataJson = json.loads(json.dumps(infoJson))
         dataJson['username'] = uname
         dataJson['password'] = upass
         dataJson['avatar'] = uava
@@ -67,12 +82,11 @@ class SuccessRegisterResource(Resource):
         return render_template('success_register.html')
 
 class CollectedCardResource(Resource):
-    def get(self):
-        uidd = request.args.get('type1')  # type1是用户id
-        if uidd is not None:
+    def get(self, uid):
+        if uid:
             collected_card1 = Collect.query.filter(and_(Collect.uid == uidd, Collect.ifQuestion == 1))
-            indoJson = {}
-            dataJson = json.loads(json.dumps(indoJson))
+            infoJson = {}
+            dataJson = json.loads(json.dumps(infoJson))
             # for i in collected_card1:
             #     uid1 = i.uid
             #     text1 = i.text
@@ -82,45 +96,49 @@ class CollectedCardResource(Resource):
                 dataJson['text'] = i.text
                 dataJson['time'] = i.time
             ansJson = json.dumps(dataJson, ensure_ascii=False)
-
             return ansJson
             # return render_template('print_collect_card.html', uid=uid1, text=text1, time=time1)
         abort(404)
 
 class CollectedQuestionResource(Resource):
-    def get(self):
-        uidd = request.args.get('type1')
-        if uidd is not None:
+    def get(self, uid):
+        if uid:
             collected_question1 = Collect.query.filter(and_(Collect.uid == uidd, Collect.ifQuestion == '0'))
-            print(collected_question1)
+            infoJson = {}
+            dataJson = json.loads(json.dumps(infoJson))
             for i in collected_question1:
-                text1 = i.text
-                time1 = i.time
-            return render_template('print_collect_question.html', uid=uidd, text=text1, time=time1)
+                dataJson['text'] = i.text
+                dataJson['time'] = i.time
+            ansJson = json.dumps(dataJson, ensure_ascii=False)
+            return ansJson
         abort(404)
 
 class LookedCardResource(Resource):
-    def get(self):
-        uidd = request.args.get('type1')
-        if uidd is not None:
+    def get(self, uid):
+        if uid:
             looked_card1 = Browse.query.filter(and_(Browse.uid == uidd, Browse.ifQuestion == 1))
+            infoJson = {}
+            dataJson = json.loads(json.dumps(infoJson))
             for i in looked_card1:
-                uid1 = i.uid
-                text1 = i.text
-                time1 = i.time
-            return render_template('print_look_card.html', uid=uid1, text=text1, time=time1)
+                dataJson['uid'] = i.uid
+                dataJson['text'] = i.text
+                dataJson['time'] = i.time
+            ansJson = json.dumps(dataJson, ensure_ascii=False)
+            return ansJson
         abort(404)
 
 class LookedQuestionResource(Resource):
-    def get(self):
-        uidd = request.args.get('type1')
-        if uidd is not None:
+    def get(self, uid):
+        if uid:
             looked_question1 = Browse.query.filter(and_(Browse.uid == uidd, Browse.ifQuestion == 0))
+            infoJson = {}
+            dataJson = json.loads(json.dumps(infoJson))
             for i in looked_question1:
-                uid1 = i.uid
-                text1 = i.text
-                time1 = i.time
-            return render_template('print_look_question.html', uid=uid1, text=text1, time=time1)
+                dataJson['uid'] = i.uid
+                dataJson['text'] = i.text
+                dataJson['time'] = i.time
+            ansJson = json.dumps(dataJson, ensure_ascii=False)
+            return ansJson
         abort(404)
 
 class HelpResource(Resource):
