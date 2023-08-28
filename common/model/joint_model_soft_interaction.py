@@ -3,9 +3,8 @@ import torch
 import math
 import torch.nn as nn
 import torch.nn.functional as F
-from model.torch_crf import CRF
-from layers.dynamic_rnn import DynamicLSTM
-import time
+from common.model.torch_crf import CRF
+from common.layers.dynamic_rnn import DynamicLSTM
 
 import numpy as np
 

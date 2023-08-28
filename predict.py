@@ -39,13 +39,13 @@ if torch.cuda.is_available():
     device = torch.device("cuda", torch.cuda.current_device())
 else:
     device = torch.device("cpu")
-idx2intent, intent2idx = lord_label_dict("data/agis/intent_label.txt")
-idx2slot, slot2idx = lord_label_dict("data/agis/slot_label.txt")
-embedding_file = open("data/agis/emb_word.txt", "r", encoding="utf-8")
+idx2intent, intent2idx = lord_label_dict("common/data/agis/intent_label.txt")
+idx2slot, slot2idx = lord_label_dict("common/data/agis/slot_label.txt")
+embedding_file = open("common/data/agis/emb_word.txt", "r", encoding="utf-8")
 embeddings = [emb.strip() for emb in embedding_file]
 embedding_word, vocab = process_emb(embeddings, emb_dim=300)
 
-model = torch.load('model/agis_model.bin', map_location=device)
+model = torch.load('common/model/agis_model.bin', map_location=device)
 model.eval()
 
 
