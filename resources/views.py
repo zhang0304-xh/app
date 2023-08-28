@@ -1,6 +1,7 @@
 from flask import jsonify, request, render_template, redirect, url_for, session
 from flask_restful import Resource,abort
 from sqlalchemy import and_
+import json
 
 from database.models import *
 
@@ -49,7 +50,17 @@ class RegisterResource(Resource):
         u1 = User(username=uname, password=upass, avatar=uava, phoneNumber=upnumber)
         db.session.add(u1)
         db.session.commit()
-        return redirect(url_for('success_register'))
+        #生成json格式数据
+        indoJson = {}
+        dataJson = json.loads(json.dumps(indoJson))
+        dataJson['username'] = uname
+        dataJson['password'] = upass
+        dataJson['avatar'] = uava
+        dataJson['phoneNumber'] = upnumber
+        ansJson = json.dumps(dataJson, ensure_ascii=False)
+
+        return ansJson
+        # return redirect(url_for('success_register'))
 
 class SuccessRegisterResource(Resource):
     def get(self):
@@ -57,14 +68,23 @@ class SuccessRegisterResource(Resource):
 
 class CollectedCardResource(Resource):
     def get(self):
-        uidd = request.args.get('type1')
+        uidd = request.args.get('type1')  # type1是用户id
         if uidd is not None:
             collected_card1 = Collect.query.filter(and_(Collect.uid == uidd, Collect.ifQuestion == 1))
+            indoJson = {}
+            dataJson = json.loads(json.dumps(indoJson))
+            # for i in collected_card1:
+            #     uid1 = i.uid
+            #     text1 = i.text
+            #     time1 = i.time
             for i in collected_card1:
-                uid1 = i.uid
-                text1 = i.text
-                time1 = i.time
-            return render_template('print_collect_card.html', uid=uid1, text=text1, time=time1)
+                dataJson['uid'] = i.uid
+                dataJson['text'] = i.text
+                dataJson['time'] = i.time
+            ansJson = json.dumps(dataJson, ensure_ascii=False)
+
+            return ansJson
+            # return render_template('print_collect_card.html', uid=uid1, text=text1, time=time1)
         abort(404)
 
 class CollectedQuestionResource(Resource):
