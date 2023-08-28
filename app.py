@@ -1,13 +1,17 @@
 from flask import Flask
-from common import create_app
+from extension import db,cors
+from config import Config
+from resources import main
 
-app = create_app()
+def create_app():
+    # 初始化flask
+    app = Flask(__name__)
+    # 从对象设置配置信息
+    app.config.from_object(Config)
+    # 第三方扩展初始化
+    db.init_app(app)
+    #cors.init(app)
+    # 注册蓝图
+    app.register_blueprint(main)
+    return app
 
-
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello'
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0')

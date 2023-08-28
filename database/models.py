@@ -1,5 +1,5 @@
 from sqlalchemy import ForeignKey
-from .extensions import db
+from app import db
 
 class User(db.Model):
     """用户表"""
