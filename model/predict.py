@@ -111,88 +111,41 @@ def question_deal(sent):
     # slot, intent = text.split(',')
     pred_intents = []
     pred_slots = []
-    try:
-        # sent = '玉米瘤黑穗病主要危害玉米的哪些部位？'
-        inputs = [[vocab[word] for word in list(sent)] + [vocab["<pad>"]] * (32 - len(sent))]
-        char_lists = []
-        masks = [[1] * len(sent) + [0] * (32 - len(sent))]
 
-        if torch.cuda.is_available():
-            inputs, char_lists, masks = torch.tensor(inputs).cuda(), torch.tensor(char_lists).cuda(), torch.tensor(
-                masks).cuda()
-        logits_intent, logits_slot = model.forward_logit((inputs, char_lists), masks)
-        pred_intent, pred_slot = model.pred_intent_slot(logits_intent, logits_slot, masks)
-        pred_intents.extend(pred_intent.cpu().numpy().tolist())
+    # sent = '玉米瘤黑穗病主要危害玉米的哪些部位？'
+    inputs = [[vocab[word] for word in list(sent)] + [vocab["<pad>"]] * (32 - len(sent))]
+    char_lists = []
+    masks = [[1] * len(sent) + [0] * (32 - len(sent))]
 
-        for i in range(len(pred_slot)):
-            pred = []
-        for j in range(len(pred_slot[i])):
-            pred.append(idx2slot[pred_slot[i][j].item()])
-        # pred_slots.append(pred)
+    if torch.cuda.is_available():
+        inputs, char_lists, masks = torch.tensor(inputs).cuda(), torch.tensor(char_lists).cuda(), torch.tensor(
+            masks).cuda()
+    logits_intent, logits_slot = model.forward_logit((inputs, char_lists), masks)
+    pred_intent, pred_slot = model.pred_intent_slot(logits_intent, logits_slot, masks)
+    pred_intents.extend(pred_intent.cpu().numpy().tolist())
 
-        slots = parse_slot(pred, sent)
+    for i in range(len(pred_slot)):
+        pred = []
+    for j in range(len(pred_slot[i])):
+        pred.append(idx2slot[pred_slot[i][j].item()])
+    # pred_slots.append(pred)
 
-        # ['B-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'O', 'O', 'O', 'O', 'O']
-        pred_intents = [idx2intent[intent] for intent in pred_intents]
+    slots = parse_slot(pred, sent)
 
-        # if len(pred_intents) == 1:
-        #     responce = pred_intents[0]
-        # else:
-        #     responce = "存在多个意图"
+    # ['B-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'O', 'O', 'O', 'O', 'O']
+    pred_intents = [idx2intent[intent] for intent in pred_intents]
 
-        cypher = "MATCH(n1: {0})-[r: {1}]->(n2) where  n1.name= '{2}' return n2"  # 查询模板
+    # if len(pred_intents) == 1:
+    #     responce = pred_intents[0]
+    # else:
+    #     responce = "存在多个意图"
 
-        keywords = list(slots.values())[0][0]
-        # print(keywords)
+    cypher = "MATCH(n1: {0})-[r: {1}]->(n2) where  n1.name= '{2}' return n2"  # 查询模板
 
-        if keywords == '玉米斑病':
-            keywords = '玉米大斑病'
-        elif keywords == '豆子':
-            keywords = '大豆'
-        elif keywords == '麦子':
-            keywords = '小麦'
+    keywords = list(slots.values())[0][0]
 
-        elif keywords == '春麦子':
-            keywords = '小麦'
+    # print(keywords)
+    cypher = cypher.format(list(slots.keys())[0], pred_intents[0], keywords)
 
-        # print(keywords)
-        cypher = cypher.format(list(slots.keys())[0], pred_intents[0], keywords)
-        print(cypher)
+    return cypher
 
-        # results = neoutils.original_graph(cypher)
-        #
-        # responce = []
-        # for a in results:
-        #     for tk, tv in a.items():
-        #         nodes = tv.nodes
-        #         # _node = Node(nodes[0])
-        #         for n in nodes:
-        #             obj_properties = {}
-        #             for k, v in n.items():
-        #                 obj_properties[k] = v
-        #
-        #             print(obj_properties)
-        #             responce.append(obj_properties['name'])
-
-        # return ','.join(response)
-        # print(pred_slots)
-        # print(slots)
-        # print(pred_intents)
-
-        # if not responce:
-        #     return '抱歉，您的问题暂未收录'
-        # else:
-        #
-        #     if len(responce) > 2030:
-        #         responce = responce[:2030] + '...'
-        #
-        #     return ','.join(responce)
-    except:
-
-        return '您的问题暂未收录'
-
-if __name__ == '__main__':
-
-    sent='玉米大斑病如何防治？'
-
-    question_deal(sent)

@@ -12,24 +12,7 @@ api_v1 =Blueprint('my',__name__)
 
 @api_v1.route('/')
 def my_index():
-
-    # 创建与 Neo4j 数据库的连接
-    graph = Graph("bolt://localhost:7687", auth=("neo4j", "123456"))
-
-    # 要执行的查询语句
-    cypher_query = "MATCH (n:Disease) RETURN n LIMIT 25"
-
-    # 执行查询并将结果转换为 JSON 格式
-    data = graph.run(cypher_query).data()
-    json_data = json.dumps(data, ensure_ascii=False)  # 转换为JSON字符串
-
-    # 将 JSON 数据进行格式化输出
-    formatted_json = json.dumps(json.loads(json_data), ensure_ascii=False, indent=4)
-
-    formatted_json = formatted_json.replace("\\n", "\n")
-
-    return formatted_json
-
+    pass
 
 @api_v1.route('/my')  # 个人中心页面
 def index():

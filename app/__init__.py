@@ -3,7 +3,6 @@ from .views import api_v1
 from .extensions import init_exts
 
 
-
 def creat_app():
     app = Flask(__name__)
 
