@@ -1,18 +1,12 @@
 # 路由 + 视图函数
 from flask import Blueprint
 from .models import *
-import json
-from py2neo import Graph
 
 from flask import render_template, \
     request, abort, redirect, url_for, session, make_response
 from sqlalchemy import and_
 
 api_v1 =Blueprint('my',__name__)
-
-@api_v1.route('/')
-def my_index():
-    pass
 
 @api_v1.route('/my')  # 个人中心页面
 def index():
@@ -213,3 +207,9 @@ def Get_UserData():
 #     # db.session.add(role1)
 #     # # 提交任务
 #     # db.session
+
+api_v2 =Blueprint('hii',__name__)
+
+@api_v2.route('/')
+def my_index():
+    return "123"

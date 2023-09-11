@@ -1,5 +1,5 @@
 from flask import Flask
-from .views import api_v1
+from .views import api_v1,api_v2
 from .extensions import init_exts
 
 
@@ -8,6 +8,7 @@ def creat_app():
 
     # 注册蓝图
     app.register_blueprint(blueprint=api_v1)
+    app.register_blueprint(blueprint=api_v2)
 
     # 配置数据库
     db_uri = 'mysql+pymysql://root:123456@127.0.0.1:3306/APP?charset=utf8mb4'
