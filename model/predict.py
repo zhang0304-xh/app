@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-#from App import lord_label_dict
+#from app import lord_label_dict
 import torch.nn as nn
 
 def lord_label_dict(path):
@@ -45,7 +45,7 @@ embedding_file = open("../data/agis/emb_word.txt", "r", encoding="utf-8")
 embeddings = [emb.strip() for emb in embedding_file]
 embedding_word, vocab = process_emb(embeddings, emb_dim=300)
 
-model = torch.load('agis_model.bin', map_location=device)
+model = torch.load('../model/agis_model.bin', map_location=device)
 model.eval()
 
 
