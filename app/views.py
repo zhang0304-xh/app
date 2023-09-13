@@ -4,10 +4,12 @@ import json
 
 from flask import Blueprint, jsonify
 from .models import *
-
+import model
 from flask import render_template, \
     request, abort, redirect, url_for, session, make_response
 from sqlalchemy import and_
+import json
+from py2neo import Graph
 
 api_v1 =Blueprint('my',__name__)
 
@@ -233,3 +235,33 @@ api_v2 =Blueprint('hii',__name__)
 @api_v2.route('/')
 def my_index():
     return render_template('main_kg7.html')
+
+#每日推荐
+@api_v2.route('/dayrecommended', methods=['POST', 'GET'])
+def get_showdata():
+    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+    sas = 'MATCH (n:Disease) WITH n WHERE rand() < 0.3 // for a 30% chance to include the node RETURN n LIMIT 25'
+    data = graph.run(sas).data()
+    json_data = json.dumps(data,ensure_ascii=False)
+    json_data2=json.dumps(json.loads(json_data),ensure_ascii=False)
+    formatted_json = json.dumps(json.loads(json_data2), ensure_ascii=False, indent=4)
+    return formatted_json(render_template('sohw_day.html'))
+
+#问答
+@api_v2.route('/resourceshome',methods=['POST','GET'])
+def getdata(sent):
+    formatter_json = model.predict(sent)
+    return formatter_json(render_template('show_resources.html'))
+
+#表单接收,请求获取网页结果给后端
+@api_v2.route('/resourceshome',methods=['POST','GET'])
+def get_sent():
+    sent=request.form.get('sent')
+    return sent
+
+
+
+
+
+
+

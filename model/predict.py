@@ -1,6 +1,7 @@
 import torch
 import numpy as np
-
+from py2neo import Graph
+import json
 def lord_label_dict(path):
     label2id = {}
     id2label = {}
@@ -107,45 +108,69 @@ def parse_slot(slot_labels, text):
     return keywords
 
 def question_deal(sent):
-    # 识别意图及槽位
-    # slot, intent = text.split(',')
-    pred_intents = []
-    pred_slots = []
+    try:
+        graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+        # 识别意图及槽位
+        # slot, intent = text.split(',')
+        pred_intents = []
+        pred_slots = []
 
-    # sent = '玉米瘤黑穗病主要危害玉米的哪些部位？'
-    inputs = [[vocab[word] for word in list(sent)] + [vocab["<pad>"]] * (32 - len(sent))]
-    char_lists = []
-    masks = [[1] * len(sent) + [0] * (32 - len(sent))]
+        # sent = '玉米瘤黑穗病主要危害玉米的哪些部位？'
+        inputs = [[vocab[word] for word in list(sent)] + [vocab["<pad>"]] * (32 - len(sent))]
+        char_lists = []
+        masks = [[1] * len(sent) + [0] * (32 - len(sent))]
 
-    if torch.cuda.is_available():
-        inputs, char_lists, masks = torch.tensor(inputs).cuda(), torch.tensor(char_lists).cuda(), torch.tensor(
-            masks).cuda()
-    logits_intent, logits_slot = model.forward_logit((inputs, char_lists), masks)
-    pred_intent, pred_slot = model.pred_intent_slot(logits_intent, logits_slot, masks)
-    pred_intents.extend(pred_intent.cpu().numpy().tolist())
+        if torch.cuda.is_available():
+            inputs, char_lists, masks = torch.tensor(inputs).cuda(), torch.tensor(char_lists).cuda(), torch.tensor(
+                masks).cuda()
+        logits_intent, logits_slot = model.forward_logit((inputs, char_lists), masks)
+        pred_intent, pred_slot = model.pred_intent_slot(logits_intent, logits_slot, masks)
+        pred_intents.extend(pred_intent.cpu().numpy().tolist())
 
-    for i in range(len(pred_slot)):
-        pred = []
-    for j in range(len(pred_slot[i])):
-        pred.append(idx2slot[pred_slot[i][j].item()])
-    # pred_slots.append(pred)
+        for i in range(len(pred_slot)):
+            pred = []
+        for j in range(len(pred_slot[i])):
+            pred.append(idx2slot[pred_slot[i][j].item()])
+        # pred_slots.append(pred)
 
-    slots = parse_slot(pred, sent)
+        slots = parse_slot(pred, sent)
 
-    # ['B-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'O', 'O', 'O', 'O', 'O']
-    pred_intents = [idx2intent[intent] for intent in pred_intents]
+        # ['B-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'O', 'O', 'O', 'O', 'O']
+        pred_intents = [idx2intent[intent] for intent in pred_intents]
 
-    # if len(pred_intents) == 1:
-    #     responce = pred_intents[0]
-    # else:
-    #     responce = "存在多个意图"
+        # if len(pred_intents) == 1:
+        #     responce = pred_intents[0]
+        # else:
+        #     responce = "存在多个意图"
 
-    cypher = "MATCH(n1: {0})-[r: {1}]->(n2) where  n1.name= '{2}' return n2"  # 查询模板
+        cypher = "MATCH(n1: {0})-[r: {1}]->(n2) where  n1.name= '{2}' return n2"  # 查询模板
 
-    keywords = list(slots.values())[0][0]
+        keywords = list(slots.values())[0][0]
 
-    # print(keywords)
-    cypher = cypher.format(list(slots.keys())[0], pred_intents[0], keywords)
+        #print(keywords)
+        #cypher = cypher.format(list(slots.keys())[0], pred_intents[0], keywords)
+        # print(cypher)
+        #匹配查出的关键词
+        sas = f"MATCH (n:{keywords[0]})-[r:{keywords[1]}]->(n2)  return n2"
+        data = graph.run(sas).data()
+        json_data = json.dumps(data, ensure_ascii=False)
+        json_data2 = json.dumps(json.loads(json_data), ensure_ascii=False)
+        formatted_json = json.dumps(json.loads(json_data2), ensure_ascii=False, indent=4)
+        return formatted_json
+        responce = []
+        if not responce:
+            return '抱歉，您的问题暂未收录'
+        else:
 
-    return cypher
+            if len(responce) > 2030:
+                responce = responce[:2030] + '...'
+
+            return ','.join(responce)
+    except:
+
+            return '您的问题暂未收录'
+        #return cypher
+
+
+
 
