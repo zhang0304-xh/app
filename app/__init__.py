@@ -14,6 +14,7 @@ def creat_app():
     db_uri = 'mysql+pymysql://root:123456@127.0.0.1:3306/APP?charset=utf8mb4'
     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'your_secret_key'
 
     # 设置图片保存文件夹
     UPLOAD_FOLDER = 'photo'

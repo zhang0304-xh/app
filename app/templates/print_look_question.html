@@ -5,8 +5,13 @@
     <title>Title</title>
 </head>
 <body>
-用户id：{{ uid }}<br>
-信息：{{ text }}<br>
-收藏时间：{{ time }}
+{% for list in looked_question%}
+
+用户id：{{ list.uid }}<br>
+收藏的卡片信息：{{ list.text }}<br>
+收藏时间：{{ list.time }}
+
+{% endfor %}
+
 </body>
 </html>

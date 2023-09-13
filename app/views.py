@@ -1,5 +1,8 @@
 # 路由 + 视图函数
-from flask import Blueprint
+import base64
+import json
+
+from flask import Blueprint, jsonify
 from .models import *
 
 from flask import render_template, \
@@ -48,8 +51,8 @@ def login():
                 # g.phoneNumber = user2['phoneNumber']
                 # print(g)
                 # print(g.username)
-                return redirect(url_for('success_login'))  # 跳到success函数所指向的url
-        return redirect(url_for('fail_login'))
+                return redirect(url_for('my.success_login'))  # 跳到success函数所指向的url
+        return redirect(url_for('my.fail_login'))
     # elif request.method == "GET":#没有登录，就返回个人中心页面
     #     return redirect(url_for(index))
 
@@ -104,22 +107,28 @@ def register_check():
     if request.method == 'POST':
         uname = request.form['username']
         upass = request.form['password']
-        uava = request.files['avatar']
-        uava = uava.enconde('base64', 'strict')
+        # uava = request.files['avatar'].read()
+        uava = ""
+        # print(uava)
+
+        # data = uava.read()  # 读取文件内容
+        # uava = uava.encode('base64', 'strict')
+        # avatar_data = request.files['avatar'].read()  # 读取文件数据为字节数组
+        # avatar_str = base64.b64encode(uava.endoce('utf-8')) # 将字节数组编码为字符串
         upnumber = request.form['phoneNumber']
         u1 = User(username=uname, password=upass, avatar=uava, phoneNumber=upnumber)
         db.session.add(u1)
         db.session.commit()
-        return redirect(url_for('success_register'))
+        return render_template('print_userMessage.html',name=uname)
         # 跳到success函数所指向的url
 
     elif request.method == "GET":  # 没有登录，就返回个人中心页面
         return redirect(url_for('index'))
 
 
-@api_v1.route('/my/success_register')
-def success_register():
-    return render_template('success_register.html')
+# @api_v1.route('/my/print_userMessage')
+# def success_register():
+#     return render_template('print_userMessage.html')
 
 
 # 查看收藏的知识卡片
@@ -127,12 +136,18 @@ def success_register():
 def collected_card():  # 需要前端传来该用户的id
     uidd = request.args.get('type1')
     if(uidd != None):
-        collected_card1 = Collect.query.filter(and_(Collect.uid == uidd, Collect.ifQuestion == 1))
-        for i in collected_card1:
-            uid1 = i.uid
-            text1 = i.text
-            time1 = i.time
-        return render_template('print_collect_card.html', uid=uid1,text=text1,time=time1)
+        collected_card1 = Collect.query.filter(and_(Collect.uid == uidd, Collect.ifQuestion == "1")).all()
+        # print(collected_card1)
+        # print(type(collected_card1))
+        # list1 = None
+        # for i in collected_card1:
+        #     uid1 = i.uid
+        #     text1 = i.text
+        #     time1 = i.time
+        #     print(text1)
+
+
+        return render_template('print_collect_card.html', collected_card=collected_card1)
     return abort(304)
 
 
@@ -141,13 +156,13 @@ def collected_card():  # 需要前端传来该用户的id
 def collected_question():  # 需要前端传来该用户的id
     uidd = request.args.get('type1')
     if (uidd != None):
-        collected_question1 = Collect.query.filter(and_(Collect.uid == uidd, Collect.ifQuestion == '0'))
-        print(collected_question1)
-        for i in collected_question1:
-
-            text1 = i.text
-            time1 = i.time
-        return render_template('print_collect_question.html', uid=uidd,text=text1,time=time1)
+        collected_question1 = Collect.query.filter(and_(Collect.uid == uidd, Collect.ifQuestion == '0')).all()
+        # print(collected_question1)
+        # for i in collected_question1:
+        #
+        #     text1 = i.text
+        #     time1 = i.time
+        return render_template('print_collect_question.html', collected_question=collected_question1)
     return abort(404)
 
 # 查看搜索过的知识卡片
@@ -155,12 +170,12 @@ def collected_question():  # 需要前端传来该用户的id
 def looked_card():  # 需要前端传来该用户的id
     uidd = request.args.get('type1')
     if (uidd != None):
-        looked_card1 = Browse.query.filter(and_(Browse.uid == uidd, Browse.ifQuestion == 1))
-        for i in looked_card1:
-            uid1 = i.uid
-            text1 = i.text
-            time1 = i.time
-        return render_template('print_look_card.html', uid=uid1,text=text1,time=time1)
+        looked_card1 = Browse.query.filter(and_(Browse.uid == uidd, Browse.ifQuestion == 1)).all()
+        # for i in looked_card1:
+        #     uid1 = i.uid
+        #     text1 = i.text
+        #     time1 = i.time
+        return render_template('print_look_card.html', looked_card=looked_card1)
     return abort(404)
 
 # 查看搜索过的问题
@@ -168,12 +183,12 @@ def looked_card():  # 需要前端传来该用户的id
 def looked_question():  # 需要前端传来该用户的id
     uidd = request.args.get('type1')
     if (uidd != None):
-        looked_question1 = Browse.query.filter(and_(Browse.uid == uidd, Browse.ifQuestion == 0))
-        for i in looked_question1:
-            uid1 = i.uid
-            text1 = i.text
-            time1 = i.time
-        return render_template('print_look_question.html', uid=uid1,text=text1,time=time1)
+        looked_question1 = Browse.query.filter(and_(Browse.uid == uidd, Browse.ifQuestion == 0)).all()
+        # for i in looked_question1:
+        #     uid1 = i.uid
+        #     text1 = i.text
+        #     time1 = i.time
+        return render_template('print_look_question.html', looked_question=looked_question1)
     return(404)
 
 # 帮助反馈(返回数据库中管理员的联系方式）
@@ -193,7 +208,12 @@ def Get_UserData():
     user = User.query.all()  # 返回列表
     return user
 
-
+@api_v1.route('/data', methods=['GET'])
+def get_data():
+    # 假设后端返回的JSON数据为data
+    with open('app/all_data.json', 'r') as file:
+        data = json.load(file)
+    return jsonify(data)
 # if __name__ == '__main__':
 #     app.run(debug=True)
 #     u = User(username='1', password='1', phoneNumber='111')
@@ -212,4 +232,4 @@ api_v2 =Blueprint('hii',__name__)
 
 @api_v2.route('/')
 def my_index():
-    return "123"
+    return render_template('main_kg7.html')
