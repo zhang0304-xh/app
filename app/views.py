@@ -209,13 +209,6 @@ def looked_question():  # 需要前端传来该用户的id
 def Get_UserData():
     user = User.query.all()  # 返回列表
     return user
-
-@api_v1.route('/data', methods=['GET'])
-def get_data():
-    # 假设后端返回的JSON数据为data
-    with open('app/all_data.json', 'r') as file:
-        data = json.load(file)
-    return jsonify(data)
 # if __name__ == '__main__':
 #     app.run(debug=True)
 #     u = User(username='1', password='1', phoneNumber='111')
@@ -235,6 +228,20 @@ api_v2 =Blueprint('hii',__name__)
 @api_v2.route('/')
 def my_index():
     return render_template('main_kg7.html')
+
+@api_v2.route('/card_data', methods=['GET'])
+def get_carddata():
+    # 假设后端返回的JSON数据为data
+    with open('app/all_data.json', 'r') as file:
+        data = json.load(file)
+    return jsonify(data)
+
+@api_v2.route('/node_data', methods=['GET'])
+def get_nodedata():
+    # 假设后端返回的JSON数据为data
+    with open('app/starwar_alldata.json', 'r') as file:
+        data_node = json.load(file)
+    return jsonify(data_node)
 
 #每日推荐
 @api_v2.route('/dayrecommended', methods=['POST', 'GET'])

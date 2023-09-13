@@ -187,21 +187,6 @@
 		</div>
 
 	</body>
-	<!-- 模板中的其他代码 -->
-	<script>
-		// fetch('/data')  // 向后端发起GET请求
-		// 		.then(response => response.json())  // 解析响应为JSON格式
-		// 		.then(data => {
-		// 			// 获取到后端返回的数据，可以在这里进行图谱的渲染操作
-		// 			 console.log(data);  // 用于调试，在控制台打印数据
-		// 		})
-		// 		.catch(error => {
-		// 			console.log("data");
-		// 			console.error('Error:', error);  // 如果出现错误，打印错误信息
-		// 		});
-	</script>
-	<!-- 模板中的其他代码 -->
-
 	<!-- 增加D3元素库 -->
 	<script src="https://d3js.org/d3.v4.min.js"></script>
 	<!-- 补充JS代码 -->
@@ -234,11 +219,11 @@
 			//存储关系图的数据
 			var graph;
 
-			//定义d3.json请求python处理好的节点及边 请求成功返回数据，否则报错
-			d3.json("/static/starwar_alldata.json", function(error, data) {
-				if (error) throw error;
-				graph = data;
-				console.log(graph);
+			fetch('/node_data')  // 向后端发起GET请求
+				.then(response => response.json())  // 解析响应为JSON格式
+				.then(node_data => {
+					graph = node_data;
+					console.log(graph);
 
 				//D3映射数据至HTML中
 				//g用于绘制所有边,selectALL选中所有的line,并绑定数据data(graph.links),enter().append("line")添加元素
@@ -327,6 +312,10 @@
 						return 'translate(' + d.x + ',' + (d.y + d.size / 2) + ')';
 					});
 				}
+			})
+			.catch(error => {
+				console.log("data");
+				console.error('Error:', error);  // 如果出现错误，打印错误信息
 			});
 
 
@@ -602,16 +591,14 @@
 
 			//加载Python获取的Json信息：六类实体详细属性信息
 			var info;
-			fetch('/data')  // 向后端发起GET请求
+			fetch('/card_data')  // 向后端发起GET请求
 					.then(response => response.json())  // 解析响应为JSON格式
 					.then(data => {
 						// 获取到后端返回的数据，可以在这里进行图谱的渲染操作
 						info = data;
 						console.log(info);
-						console.log(data);  // 用于调试，在控制台打印数据
 					})
 					.catch(error => {
-						console.log("data");
 						console.error('Error:', error);  // 如果出现错误，打印错误信息
 					});
 
