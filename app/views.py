@@ -3,7 +3,7 @@ import base64
 import json
 
 from flask import Blueprint, jsonify
-from .models import *
+#from .models  import *
 import model
 from flask import render_template, \
     request, abort, redirect, url_for, session, make_response
@@ -18,7 +18,7 @@ def index():
     # message.user = None
     return render_template('my.html')
 
-
+'''
 # 用户登录页面
 @api_v1.route('/my/login', methods=['POST', 'GET'])
 def login():
@@ -222,7 +222,7 @@ def Get_UserData():
 #     # db.session.add(role1)
 #     # # 提交任务
 #     # db.session
-
+'''
 api_v2 =Blueprint('hii',__name__)
 
 @api_v2.route('/')
@@ -232,18 +232,28 @@ def my_index():
 @api_v2.route('/card_data', methods=['GET'])
 def get_carddata():
     # 假设后端返回的JSON数据为data
-    with open('app/all_data.json', 'r') as file:
-        data = json.load(file)
-    return jsonify(data)
+    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+    sas = 'MATCH p=()-[r:`病害`]->() RETURN p LIMIT 25'
+          #'WHERE '
+          #'rand() < 0.3 // for a 30% chance to include the node RETURN n LIMIT 25'
+    data1 = graph.run(sas).data()
+    print(data1)
+    data2 = json.dumps(data1, ensure_ascii=False)
+    data = json.dumps(json.loads(data2), ensure_ascii=False)
+
+    #data = json.dumps(json.loads(json_data2), ensure_ascii=False, indent=4)
+
+    return data
 
 @api_v2.route('/node_data', methods=['GET'])
-def get_nodedata():
+def get_nodedata(sent):
     # 假设后端返回的JSON数据为data
-    with open('app/starwar_alldata.json', 'r') as file:
-        data_node = json.load(file)
-    return jsonify(data_node)
+    data_node = 0#model.predict(sent)
+    print()
+    return data_node
 
 #每日推荐
+'''
 @api_v2.route('/dayrecommended', methods=['POST', 'GET'])
 def get_showdata():
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
@@ -259,6 +269,8 @@ def get_showdata():
 def getdata(sent):
     formatter_json = model.predict(sent)
     return formatter_json(render_template('show_resources.html'))
+'''
+
 
 #表单接收,请求获取网页结果给后端
 @api_v2.route('/resourceshome',methods=['POST','GET'])
