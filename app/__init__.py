@@ -1,6 +1,6 @@
 from flask import Flask
 from .views import api_v1,api_v2
-from .extensions import init_exts
+#from .extensions import init_exts
 
 
 def creat_app():
@@ -21,7 +21,7 @@ def creat_app():
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
     # 初始化插件
-    init_exts(app=app)
+ #   init_exts(app=app)
 
     return app
 
