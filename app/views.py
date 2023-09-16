@@ -3,7 +3,7 @@ import base64
 import json
 
 from flask import Blueprint, jsonify
-from .models import *
+#from .models import *
 import model
 from flask import render_template, \
     request, abort, redirect, url_for, session, make_response
@@ -18,7 +18,7 @@ def index():
     # message.user = None
     return render_template('my.html')
 
-
+'''
 # 用户登录页面
 @api_v1.route('/my/login', methods=['POST', 'GET'])
 def login():
@@ -222,7 +222,7 @@ def Get_UserData():
 #     # db.session.add(role1)
 #     # # 提交任务
 #     # db.session
-
+'''
 api_v2 =Blueprint('hii',__name__)
 
 @api_v2.route('/')
@@ -232,9 +232,102 @@ def my_index():
 @api_v2.route('/card_data', methods=['GET'])
 def get_carddata():
     # 假设后端返回的JSON数据为data
-    with open('app/all_data.json', 'r') as file:
-        data = json.load(file)
-    return jsonify(data)
+
+    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+#get links这部分要增多的话可以简化
+    corn = ["萝卜", "丝瓜", "西瓜", "豌豆", "草莓", "青菜"]
+
+
+    for i in range(6):
+        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 10'
+        data = graph.run(sas).data()
+       # print(data)
+        for i in range(len(data)):
+            data[i]['value'] = 3
+        #print(data)
+
+    for i in range(6):
+        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`虫害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 10'
+        data2 = graph.run(sas).data()
+       # print(data2)
+        for i in range(len(data2)):
+            data2[i]['value'] = 3
+        #print(data2)
+
+    all_links_data = data+data2
+    #links_dict = {"links":all_links_data}
+    #print(links_dict)
+    #all_data1=json.dumps(links_dict, ensure_ascii=False)
+    #print(all_data1)
+
+
+
+#作物note
+    zw_list = []
+    for i in range(0,6):
+        keys = ["group", "class", "size", "id"]
+        values = [0, "作物", 20, f"{corn[i]}"]
+        zw_dict = dict(zip(keys, values))
+        zw_list.append(zw_dict)
+    #print("作物list")
+    #print(zw_list)
+
+#虫害note
+    ch_list = []
+    for i in range(0,6):
+        sas=f'MATCH path=(m:`作物`)<-[r]-(p:`虫害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
+        ch_note = graph.run(sas).data()
+       # print(bh_note)
+
+        ch_note_list=ch_note[0].get("cast")
+        #print(bh_note_list)
+        for n in ch_note_list:
+            keys = ["group","class","size","id"]
+            values = [1,"虫害",5,f"{n}"]
+            ch_dict=dict(zip(keys,values))
+            #print(ch_dict)
+            ch_list.append(ch_dict)
+     #   print(corn[i])
+    #print("虫害list")
+    #print(ch_list)
+
+#病害note
+    bh_list = []
+    for i in range(0, 6):
+        sas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
+        bh_note = graph.run(sas).data()
+        # print(bh_note)
+
+        bh_note_list = bh_note[0].get("cast")
+        # print(bh_note_list)
+        for n in bh_note_list:
+            keys = ["group", "class", "size", "id"]
+            values = [2, "病害", 8, f"{n}"]
+            bh_dict = dict(zip(keys, values))
+            # print(ch_dict)
+            bh_list.append(bh_dict)
+    #   print(corn[i])
+    #print("病害list")
+    #print(bh_list)
+
+#数据拼接
+    all_notes_data = zw_list + ch_list + bh_list
+    f_dict={"links":all_links_data,"nodes":all_notes_data}
+    #print(f_dict)
+
+
+    f_data = json.dumps(f_dict, ensure_ascii=False)
+    print(f_data)
+    return f_data
+
+
+
+
+
+
+
+
+
 
 @api_v2.route('/node_data', methods=['GET'])
 def get_nodedata():
@@ -247,12 +340,15 @@ def get_nodedata():
 @api_v2.route('/dayrecommended', methods=['POST', 'GET'])
 def get_showdata():
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
-    sas = 'MATCH (n:Disease) WITH n WHERE rand() < 0.3 // for a 30% chance to include the node RETURN n LIMIT 25'
+    sas = 'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "小麦"   RETURN m.name as source,r.weight as value,d.name as target'
     data = graph.run(sas).data()
-    json_data = json.dumps(data,ensure_ascii=False)
-    json_data2=json.dumps(json.loads(json_data),ensure_ascii=False)
-    formatted_json = json.dumps(json.loads(json_data2), ensure_ascii=False, indent=4)
-    return formatted_json(render_template('sohw_day.html'))
+    print(data)
+    for i in range(len(data)):
+        data[i]["value"]=3
+    print(data)
+    #data1=json.dumps(data, ensure_ascii=False)
+    #print(data1)
+    return data#formatted_json(render_template('sohw_day.html'))
 
 #问答
 @api_v2.route('/resourceshome',methods=['POST','GET'])
