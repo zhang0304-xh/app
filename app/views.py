@@ -234,6 +234,7 @@ def get_carddata():
     # 假设后端返回的JSON数据为data
 
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+
 #get links这部分要增多的话可以简化
     corn = ["萝卜", "丝瓜", "西瓜", "豌豆", "草莓", "青菜"]
 
@@ -317,11 +318,83 @@ def get_carddata():
 
 
     f_data = json.dumps(f_dict, ensure_ascii=False)
-    print(f_data)
+    #print(f_data)
     return f_data
+'''
+
+    rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as cast order by rand() limit 1'
+    r_note = graph.run(rsas).data()
+    #print(type(r_note))
+    #print(r_note[0])
+    rr_note = r_note[0].get("cast")
+    #print("rr_note")
+    #print(rr_note)
+    #print(type(rr_note))
+    sas = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}"  return n.name as 病害 , m.name as 症状'
+    zz_note = graph.run(sas).data()
+    #print("zz_note")
+    #print(zz_note)
+
+    #f_key = f"{r_note[0]}"#zz_note[0].get("病害")
+
+    sas2 = f'MATCH (n:`病害`)-[r:`危害作物`]->(m:`作物`) WHERE n.name="{rr_note}"  return m.name as 危害作物'
+    zw_note = graph.run(sas2).data()
+    #print("zw_note")
+    #print(zw_note)
+
+    sas3 = f'MATCH (n:`病害`)-[r:`学名`]->(m:`学名`) WHERE n.name="{rr_note}"  return m.name as 学名'
+    xm_note = graph.run(sas3).data()
+    #print("xm_note")
+    #print(xm_note)
+
+    sas4 = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}" return m.name as 症状'
+    jj_note = graph.run(sas4).data()
+    #print("jj_note")
+    #print(jj_note)
+
+    dict_note1 = zz_note[0] | zw_note[0] | xm_note[0] | jj_note[0]
+
+    f_dict = {rr_note:dict_note1}
+    #print("f_dict")
+    #print(f_dict)
+
+    ff_dict = json.dumps(f_dict, ensure_ascii=False)
+    print(ff_dict)
+    #print(zz_note[0])
+    #print(type(zz_note[0]))
+
+    #print(dict_note1)
+'''
+#去除上面''''''和368行return，注释322的return可以测试
+    #return 0
 
 
+#每日推荐（随机取一个病害节点，返回其病害名，症状，危害的作物名，学名
+def mrtj():
+    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+    rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as cast order by rand() limit 1'
+    r_note = graph.run(rsas).data()
+    rr_note = r_note[0].get("cast")
 
+    sas = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}"  return n.name as 病害 , m.name as 症状'
+    zz_note = graph.run(sas).data()
+
+    sas2 = f'MATCH (n:`病害`)-[r:`危害作物`]->(m:`作物`) WHERE n.name="{rr_note}"  return m.name as 危害作物'
+    zw_note = graph.run(sas2).data()
+
+    sas3 = f'MATCH (n:`病害`)-[r:`学名`]->(m:`学名`) WHERE n.name="{rr_note}"  return m.name as 学名'
+    xm_note = graph.run(sas3).data()
+
+    sas4 = f'MATCH (n:`病害`)-[r:`简介`]->(m:`简介`) WHERE n.name="{rr_note}" return m.name as 简介'
+    jj_note = graph.run(sas4).data()
+
+    dict_note1 = zz_note[0] | zw_note[0] | xm_note[0] | jj_note[0]
+
+    f_dict = {rr_note: dict_note1}
+
+    ff_dict = json.dumps(f_dict, ensure_ascii=False)
+    #print(ff_dict)
+    return ff_dict
 
 
 
