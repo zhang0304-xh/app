@@ -9,6 +9,7 @@ class User(db.Model):
     password = db.Column(db.String(128))
     avatar = db.Column(db.String(128))#存储二进制文件
     phoneNumber = db.Column(db.String(128))
+    email = db.Column(db.String(128))
 
 
 class Browse(db.Model):

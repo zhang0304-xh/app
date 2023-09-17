@@ -25,4 +25,4 @@ def creat_app():
 
     return app
 
-app = creat_app()
+# app = creat_app()

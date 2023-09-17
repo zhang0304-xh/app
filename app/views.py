@@ -3,13 +3,13 @@ import base64
 import json
 
 from flask import Blueprint, jsonify
-#from .models import *
+from .models import *
 import model
 from flask import render_template, \
     request, abort, redirect, url_for, session, make_response
 from sqlalchemy import and_
 import json
-from py2neo import Graph
+# from py2neo import Graph
 
 api_v1 =Blueprint('my',__name__)
 
@@ -18,7 +18,47 @@ def index():
     # message.user = None
     return render_template('my.html')
 
-'''
+#修改用户信息
+@api_v1.route('/my/modify')
+def register():
+    return render_template('modifyMessage.html')
+@api_v1.route('/my/modify_implement',methods=['POST', 'GET'])
+def modify2():
+    if request.method == 'POST':
+        # uid2 = request.form['uid']#用户id
+        uid2 = "000"
+        uname = request.form['uname']#用户名
+        upass = request.form['password']#密码
+        # upass2 = request.form['password2']
+        password2 = "1"
+        # uava = request.files['avatar']#头像
+        # uava = uava.enconde('base64', 'strict')
+        uemail = request.form['uemail']
+        upnumber = request.form['phoneNumber']#手机号t
+        u1 = User(username=uname, password=upass, avatar="", phoneNumber=upnumber,email=uemail,uid=uid2)
+        db.session.add(u1)
+        db.session.commit()
+        return render_template('success_modify.html')
+    else:
+        return render_template('fail_modify.html')
+
+#用户反馈信息
+@api_v1.route('/my/feedback',methods=['POST', 'GET'])
+def modify():
+    if request.method == 'POST':
+        try:#捕获数据库异常，防止用户重复反馈报错
+            uid2 = request.form['uid']#用户id
+            umessage = request.form['message']#用户反馈的信息
+            m1 = User(uid=uid2, message=umessage)#用户信息对象
+            db.session.add(u1)
+            db.session.commit()
+        except:
+            info1 = "该问题您已经反馈过了，请勿重复操作"
+            return render_template('fail_feedback.html', info=info1)
+        return render_template('success_feedback.html')
+
+
+
 # 用户登录页面
 @api_v1.route('/my/login', methods=['POST', 'GET'])
 def login():
@@ -73,7 +113,7 @@ def success_login():
 def fail_login():
     return render_template('unlogin.html')
 
-
+'''
 # #用户退出
 # @App.route('/logout')
 # def logout():
