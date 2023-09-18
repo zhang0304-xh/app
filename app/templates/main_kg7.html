@@ -6,69 +6,81 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.1.0/dist/echarts.min.js"></script>
 </head>
 <body>
-<div id="chart" style="width: 800px; height: 600px;"></div>
+<div id="chart" style="width: 100%; height: 1000px;"></div>
 
 <script type="text/javascript">
-    fetch('/node_data')
-        .then(response => response.json())
+    fetch('/node_data')  // 向后端发起GET请求
+        .then(response => response.json())  // 解析响应为JSON格式
         .then(chartData => {
+
             var colorPalette = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
 
             var chartDom = document.getElementById('chart');
             var myChart = echarts.init(chartDom);
 
-            var nodes = chartData.nodes; // 节点数据
-
-            // 创建关系字典，将节点 id 作为键，节点对象作为值
-            var nodeDict = {};
-            nodes.forEach(node => {
-                nodeDict[node.id] = node;
-            });
-
-            // 创建关系数组，将连接线的 source 和 target 用节点对象代替
-            var links = chartData.links.map(link => ({
-                source: nodeDict[link.source],
-                target: nodeDict[link.target]
-            }));
-
             var option = {
+                // 工具箱
+                toolbox: {
+                    // 显示工具箱
+                    show: true,
+                    feature: {
+                        mark: {
+                            show: true
+                        },
+                        // 还原
+                        restore: {
+                            show: true
+                        },
+                        // 保存为图片
+                        saveAsImage: {
+                            show: true
+                        }
+                    }
+                },
                 series: [
                     {
                         type: 'graph',
                         layout: 'force',
                         roam: true,
                         symbolSize: 50,
-                        draggable: true,
+                        draggable: true, // 开启节点的拖拽功能
+                        force: {
+                            repulsion: 1000,
+                            edgeLength: [80, 160],
+                            layoutAnimation: true,
+                            drag: true, // 启用节点的拖拽功能
+                            focusNodeAdjacency: true, // 拖拽节点时的邻接节点高亮
+                            preventOverlap: true, // 拖拽节点时防止重叠
+                            seriesDraggable: true // 设置系列是否能被拖拽
+                        },
                         label: {
                             show: true,
                             fontSize: 16,
                             formatter: function(params) {
                                 return params.data.id;
-                            }
+                            },
+                            position: 'inside',
+                            distance: 10,
+                            draggable: true, // 添加draggable属性
                         },
                         edgeSymbol: ['none', 'none'],
                         edgeSymbolSize: [0, 0],
                         edgeLabel: {
-                            fontSize: 12
+                            fontSize: 12 // 添加edgeLabel对象
                         },
-                        data: nodes,
-                        links: links,
+                        data: chartData.nodes,
+                        links: chartData.links,
                         emphasis: {
                             focus: 'adjacency',
                             lineStyle: {
                                 width: 10
                             }
                         },
-                        force: {
-                            repulsion: 1000,
-                            edgeLength: [80, 160],
-                            layoutAnimation: true
-                        },
                         lineStyle: {
                             curveness: 0.2
                         },
                         itemStyle: {
-                            color: function(params) {
+                            color: function (params) {
                                 return colorPalette[params.data.group % colorPalette.length];
                             }
                         }
@@ -76,25 +88,8 @@
                 ]
             };
 
-            // 监听节点拖拽事件
-            myChart.on('drag', function(params) {
-                var draggedNode = params.nodes[0]; // 拖拽的节点 id
-                var draggedNodeObj = nodeDict[draggedNode]; // 拖拽的节点对象
-                var draggedGroup = draggedNodeObj.group; // 拖拽的节点群组
-
-                // 遍历相关节点，将他们的位置设置为与拖拽节点相同
-                nodes.forEach(node => {
-                    if (node.group === draggedGroup && node.id !== draggedNode) {
-                        node.x = draggedNodeObj.x;
-                        node.y = draggedNodeObj.y;
-                    }
-                });
-
-                myChart.setOption({ series: [{ data: nodes }] });
-            });
-
             myChart.setOption(option);
-        });
+        })
 </script>
 </body>
 </html>
