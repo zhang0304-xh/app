@@ -9,54 +9,75 @@ from flask import render_template, \
     request, abort, redirect, url_for, session, make_response
 from sqlalchemy import and_
 import json
+
 # from py2neo import Graph
 
-api_v1 =Blueprint('my',__name__)
+api_v1 = Blueprint('my', __name__)
+
 
 @api_v1.route('/my')  # 个人中心页面
 def index():
     # message.user = None
     return render_template('my.html')
 
-#修改用户信息
+
+# 修改用户信息
 @api_v1.route('/my/modify')
 def register():
     return render_template('modifyMessage.html')
-@api_v1.route('/my/modify_implement',methods=['POST', 'GET'])
+
+
+@api_v1.route('/my/modify_implement', methods=['POST', 'GET'])
 def modify2():
     if request.method == 'POST':
         # uid2 = request.form['uid']#用户id
-        uid2 = "000"
-        uname = request.form['uname']#用户名
-        upass = request.form['password']#密码
-        # upass2 = request.form['password2']
-        password2 = "1"
-        # uava = request.files['avatar']#头像
-        # uava = uava.enconde('base64', 'strict')
-        uemail = request.form['uemail']
-        upnumber = request.form['phoneNumber']#手机号t
-        u1 = User(username=uname, password=upass, avatar="", phoneNumber=upnumber,email=uemail,uid=uid2)
-        db.session.add(u1)
-        db.session.commit()
+        uid2 = "9"
+        # User.query.filter(User.uid == uid2)
+
+        # for i in user:
+        #     print(user.username)
+        uname = request.form['username']  # 用户名
+        if (uname != None):
+            User.query.filter(User.uid == uid2).update({"username": uname})
+            db.session.commit()
+        upass = request.form['password']  # 密码
+        if (upass != None):
+            User.query.filter(User.uid == uid2).update({"password": upass})
+            db.session.commit()
+            # upass2 = request.form['password2']
+            # if(request.form['avatar'] != None):
+            # uava = request.files['avatar']#头像
+            # uava = uava.enconde('base64', 'strict')
+            # user.update({"avatar":uava})
+            pass
+        uemail = request.form['uemail']  # 密码
+        if (uemail != None):
+            User.query.filter(User.uid == uid2).update({"email": uemail})
+            db.session.commit()
+        upnumber = request.form['phoneNumber']  # 手机号t
+        if (upnumber != None):
+            User.query.filter(User.uid == uid2).update({"phoneNumber": upnumber})
+            db.session.commit()
+
         return render_template('success_modify.html')
     else:
         return render_template('fail_modify.html')
 
-#用户反馈信息
-@api_v1.route('/my/feedback',methods=['POST', 'GET'])
+
+# 用户反馈信息
+@api_v1.route('/my/feedback', methods=['POST', 'GET'])
 def modify():
     if request.method == 'POST':
-        try:#捕获数据库异常，防止用户重复反馈报错
-            uid2 = request.form['uid']#用户id
-            umessage = request.form['message']#用户反馈的信息
-            m1 = User(uid=uid2, message=umessage)#用户信息对象
+        try:  # 捕获数据库异常，防止用户重复反馈报错
+            uid2 = request.form['uid']  # 用户id
+            umessage = request.form['message']  # 用户反馈的信息
+            m1 = User(uid=uid2, message=umessage)  # 用户信息对象
             db.session.add(u1)
             db.session.commit()
         except:
             info1 = "该问题您已经反馈过了，请勿重复操作"
             return render_template('fail_feedback.html', info=info1)
         return render_template('success_feedback.html')
-
 
 
 # 用户登录页面
@@ -112,6 +133,7 @@ def success_login():
 @api_v1.route('/my/fail_login')  # 登录失败
 def fail_login():
     return render_template('unlogin.html')
+
 
 '''
 # #用户退出
@@ -263,11 +285,13 @@ def Get_UserData():
 #     # # 提交任务
 #     # db.session
 '''
-api_v2 =Blueprint('hii',__name__)
+api_v2 = Blueprint('hii', __name__)
+
 
 @api_v2.route('/')
 def my_index():
     return render_template('main_kg7.html')
+
 
 @api_v2.route('/card_data', methods=['GET'])
 def get_carddata():
@@ -275,64 +299,61 @@ def get_carddata():
 
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
 
-#get links这部分要增多的话可以简化
+    # get links这部分要增多的话可以简化
     corn = ["萝卜", "丝瓜", "西瓜", "豌豆", "草莓", "青菜"]
-
 
     for i in range(6):
         sas = f'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 10'
         data = graph.run(sas).data()
-       # print(data)
+        # print(data)
         for i in range(len(data)):
             data[i]['value'] = 3
-        #print(data)
+        # print(data)
 
     for i in range(6):
         sas = f'MATCH path=(m:`作物`)<-[r]-(d:`虫害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 10'
         data2 = graph.run(sas).data()
-       # print(data2)
+        # print(data2)
         for i in range(len(data2)):
             data2[i]['value'] = 3
-        #print(data2)
+        # print(data2)
 
-    all_links_data = data+data2
-    #links_dict = {"links":all_links_data}
-    #print(links_dict)
-    #all_data1=json.dumps(links_dict, ensure_ascii=False)
-    #print(all_data1)
+    all_links_data = data + data2
+    # links_dict = {"links":all_links_data}
+    # print(links_dict)
+    # all_data1=json.dumps(links_dict, ensure_ascii=False)
+    # print(all_data1)
 
-
-
-#作物note
+    # 作物note
     zw_list = []
-    for i in range(0,6):
+    for i in range(0, 6):
         keys = ["group", "class", "size", "id"]
         values = [0, "作物", 20, f"{corn[i]}"]
         zw_dict = dict(zip(keys, values))
         zw_list.append(zw_dict)
-    #print("作物list")
-    #print(zw_list)
+    # print("作物list")
+    # print(zw_list)
 
-#虫害note
+    # 虫害note
     ch_list = []
-    for i in range(0,6):
-        sas=f'MATCH path=(m:`作物`)<-[r]-(p:`虫害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
+    for i in range(0, 6):
+        sas = f'MATCH path=(m:`作物`)<-[r]-(p:`虫害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
         ch_note = graph.run(sas).data()
-       # print(bh_note)
+        # print(bh_note)
 
-        ch_note_list=ch_note[0].get("cast")
-        #print(bh_note_list)
+        ch_note_list = ch_note[0].get("cast")
+        # print(bh_note_list)
         for n in ch_note_list:
-            keys = ["group","class","size","id"]
-            values = [1,"虫害",5,f"{n}"]
-            ch_dict=dict(zip(keys,values))
-            #print(ch_dict)
+            keys = ["group", "class", "size", "id"]
+            values = [1, "虫害", 5, f"{n}"]
+            ch_dict = dict(zip(keys, values))
+            # print(ch_dict)
             ch_list.append(ch_dict)
-     #   print(corn[i])
-    #print("虫害list")
-    #print(ch_list)
+    #   print(corn[i])
+    # print("虫害list")
+    # print(ch_list)
 
-#病害note
+    # 病害note
     bh_list = []
     for i in range(0, 6):
         sas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
@@ -348,18 +369,19 @@ def get_carddata():
             # print(ch_dict)
             bh_list.append(bh_dict)
     #   print(corn[i])
-    #print("病害list")
-    #print(bh_list)
+    # print("病害list")
+    # print(bh_list)
 
-#数据拼接
+    # 数据拼接
     all_notes_data = zw_list + ch_list + bh_list
-    f_dict={"links":all_links_data,"nodes":all_notes_data}
-    #print(f_dict)
-
+    f_dict = {"links": all_links_data, "nodes": all_notes_data}
+    # print(f_dict)
 
     f_data = json.dumps(f_dict, ensure_ascii=False)
-    #print(f_data)
+    # print(f_data)
     return f_data
+
+
 '''
 
     rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as cast order by rand() limit 1'
@@ -405,11 +427,13 @@ def get_carddata():
 
     #print(dict_note1)
 '''
-#去除上面''''''和368行return，注释322的return可以测试
-    #return 0
 
 
-#每日推荐（随机取一个病害节点，返回其病害名，症状，危害的作物名，学名
+# 去除上面''''''和368行return，注释322的return可以测试
+# return 0
+
+
+# 每日推荐（随机取一个病害节点，返回其病害名，症状，危害的作物名，学名
 def mrtj():
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
     rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as cast order by rand() limit 1'
@@ -433,13 +457,8 @@ def mrtj():
     f_dict = {rr_note: dict_note1}
 
     ff_dict = json.dumps(f_dict, ensure_ascii=False)
-    #print(ff_dict)
+    # print(ff_dict)
     return ff_dict
-
-
-
-
-
 
 
 @api_v2.route('/node_data', methods=['GET'])
@@ -449,7 +468,8 @@ def get_nodedata():
         data_node = json.load(file)
     return jsonify(data_node)
 
-#每日推荐
+
+# 每日推荐
 @api_v2.route('/dayrecommended', methods=['POST', 'GET'])
 def get_showdata():
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
@@ -457,27 +477,22 @@ def get_showdata():
     data = graph.run(sas).data()
     print(data)
     for i in range(len(data)):
-        data[i]["value"]=3
+        data[i]["value"] = 3
     print(data)
-    #data1=json.dumps(data, ensure_ascii=False)
-    #print(data1)
-    return data#formatted_json(render_template('sohw_day.html'))
+    # data1=json.dumps(data, ensure_ascii=False)
+    # print(data1)
+    return data  # formatted_json(render_template('sohw_day.html'))
 
-#问答
-@api_v2.route('/resourceshome',methods=['POST','GET'])
+
+# 问答
+@api_v2.route('/resourceshome', methods=['POST', 'GET'])
 def getdata(sent):
     formatter_json = model.predict(sent)
     return formatter_json(render_template('show_resources.html'))
 
-#表单接收,请求获取网页结果给后端
-@api_v2.route('/resourceshome',methods=['POST','GET'])
+
+# 表单接收,请求获取网页结果给后端
+@api_v2.route('/resourceshome', methods=['POST', 'GET'])
 def get_sent():
-    sent=request.form.get('sent')
+    sent = request.form.get('sent')
     return sent
-
-
-
-
-
-
-
