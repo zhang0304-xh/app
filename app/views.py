@@ -10,7 +10,7 @@ from flask import render_template, \
 from sqlalchemy import and_
 import json
 
-# from py2neo import Graph
+from py2neo import Graph
 
 api_v1 = Blueprint('my', __name__)
 
@@ -23,7 +23,7 @@ def index():
 
 # 修改用户信息
 @api_v1.route('/my/modify')
-def register():
+def modify6():
     return render_template('modifyMessage.html')
 
 
@@ -31,11 +31,7 @@ def register():
 def modify2():
     if request.method == 'POST':
         # uid2 = request.form['uid']#用户id
-        uid2 = "9"
-        # User.query.filter(User.uid == uid2)
-
-        # for i in user:
-        #     print(user.username)
+        uid2 = "1"
         uname = request.form['username']  # 用户名
         if (uname != None):
             User.query.filter(User.uid == uid2).update({"username": uname})
@@ -44,12 +40,21 @@ def modify2():
         if (upass != None):
             User.query.filter(User.uid == uid2).update({"password": upass})
             db.session.commit()
-            # upass2 = request.form['password2']
-            # if(request.form['avatar'] != None):
-            # uava = request.files['avatar']#头像
-            # uava = uava.enconde('base64', 'strict')
-            # user.update({"avatar":uava})
-            pass
+        uava = request.files['avatar'].read() # 头像
+        if(uava != None):
+            # data_url = request.files['avatar'].read()  # 这里假设前端将Base64字符串放在名为'base64Image'的字段中
+            # print(uava)
+            # 解码Base64字符串
+            # _, encoded = data_url.split(',', 1)
+            image_data = str(base64.b64decode(uava))
+            print(image_data)
+            # 将图像数据存储在数据库中，这里假设使用SQLAlchemy进行数据库操作
+            # user.avatar_data = image_data
+            # db.session.commit()
+            # uava2 = base64.b64encode(uava)
+            User.query.filter(User.uid == uid2).update({"avatar":image_data})
+            db.session.commit()
+
         uemail = request.form['uemail']  # 密码
         if (uemail != None):
             User.query.filter(User.uid == uid2).update({"email": uemail})
@@ -63,16 +68,19 @@ def modify2():
     else:
         return render_template('fail_modify.html')
 
+@api_v1.route('/my/feedback')
+def register():
+    return render_template('FeedBack.html')
 
 # 用户反馈信息
-@api_v1.route('/my/feedback', methods=['POST', 'GET'])
+@api_v1.route('/my/feedback2', methods=['POST', 'GET'])
 def modify():
     if request.method == 'POST':
         try:  # 捕获数据库异常，防止用户重复反馈报错
             uid2 = request.form['uid']  # 用户id
             umessage = request.form['message']  # 用户反馈的信息
-            m1 = User(uid=uid2, message=umessage)  # 用户信息对象
-            db.session.add(u1)
+            fb = User(uid=uid2, message=umessage)  # 用户信息对象
+            db.session.add(fb)
             db.session.commit()
         except:
             info1 = "该问题您已经反馈过了，请勿重复操作"
@@ -126,6 +134,7 @@ def success_login():
         username1 = session['username']
         uid1 = session['uid']
         avatar1 = session['avatar']
+        # avatar2 = base64.b64encode(avatar1)
         phoneNumber1 = session['phoneNumber']
     return render_template('success_login.html', username=username1, uid=uid1, avatar=avatar1, phoneNumber=phoneNumber1)
 
