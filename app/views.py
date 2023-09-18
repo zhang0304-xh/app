@@ -297,7 +297,7 @@ def Get_UserData():
 api_v2 = Blueprint('hii', __name__)
 
 
-@api_v2.route('/')
+@api_v2.route('/sad')
 def my_index():
     return render_template('main_kg7.html')
 
@@ -324,7 +324,7 @@ def get_node_data():
         data_node = json.load(file)
     return jsonify(data_node)
 
-@api_v2.route('/node_data')
+@api_v2.route('/')
 def get_carddata():
     # 假设后端返回的JSON数据为data
 
@@ -410,7 +410,7 @@ def get_carddata():
 
     f_data = json.dumps(f_dict, ensure_ascii=False)
     # print(f_data)
-    return jsonify(f_data)
+    return render_template('main_kg7.html',chart_data=f_data)
 
 '''
 
