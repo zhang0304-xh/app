@@ -7,11 +7,12 @@
 </head>
 <body>
 <div id="chart" style="width: 100%; height: 1000px;"></div>
-
 <script type="text/javascript">
-    fetch('/node_data')  // 向后端发起GET请求
-        .then(response => response.json())  // 解析响应为JSON格式
-        .then(chartData => {
+    // fetch('/node_data')  // 向后端发起GET请求
+    //     .then(response => response.json())  // 解析响应为JSON格式
+    //     .then(chartData => {
+            var chartData = '{{ chart_data | tojson | safe }}';
+            chartData = JSON.parse(chartData);
 
             var colorPalette = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
 
@@ -89,7 +90,7 @@
             };
 
             myChart.setOption(option);
-        })
+        // })
 </script>
 </body>
 </html>
