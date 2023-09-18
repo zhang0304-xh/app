@@ -293,7 +293,29 @@ def my_index():
     return render_template('main_kg7.html')
 
 
-@api_v2.route('/card_data', methods=['GET'])
+@api_v2.route('/node1_data')
+def get_node_data():
+    # chart_data = {
+    #     'links': [
+    #         {"source": "青菜", "value": 3, "target": "青菜菌核病"},
+    #         {"source": "青菜", "value": 3, "target": "青菜绵腐病"},
+    #         {"source": "青菜", "value": 3, "target": "青菜炭疽病"},
+    #         # 添加更多 links 对象...
+    #     ],
+    #     'nodes': [
+    #         {"group": 0, "class": "作物", "size": 20, "id": "萝卜"},
+    #         {"group": 0, "class": "作物", "size": 20, "id": "丝瓜"},
+    #         {"group": 0, "class": "作物", "size": 20, "id": "西瓜"},
+    #         # 添加更多 nodes 对象...
+    #     ]
+    # }
+    # return jsonify(chart_data)
+    # 假设后端返回的JSON数据为data
+    with open('app/starwar_alldata.json', 'r') as file:
+        data_node = json.load(file)
+    return jsonify(data_node)
+
+@api_v2.route('/node_data')
 def get_carddata():
     # 假设后端返回的JSON数据为data
 
@@ -379,8 +401,7 @@ def get_carddata():
 
     f_data = json.dumps(f_dict, ensure_ascii=False)
     # print(f_data)
-    return f_data
-
+    return jsonify(f_data)
 
 '''
 
@@ -461,12 +482,6 @@ def mrtj():
     return ff_dict
 
 
-@api_v2.route('/node_data', methods=['GET'])
-def get_nodedata():
-    # 假设后端返回的JSON数据为data
-    with open('app/starwar_alldata.json', 'r') as file:
-        data_node = json.load(file)
-    return jsonify(data_node)
 
 
 # 每日推荐
