@@ -31,10 +31,8 @@
 <div id="node-info"></div>
 
 <script type="text/javascript">
-
-    fetch('/node_data')
-        .then(response => response.json())
-        .then(chartData => {
+        var chartData = '{{ chart_data | tojson | safe }}';
+        chartData = JSON.parse(chartData);
 
             var colorPalette = ['#FF6666', '#FFCC66', '#FFFF66', '#66CC66', '#66CCCC', '#6666CC', '#CC66CC'];
 
@@ -104,7 +102,7 @@
                     nodeInfo.style.display = 'block';
                 }
             });
-        });
+
 </script>
 </body>
 </html>
