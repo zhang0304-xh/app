@@ -10,7 +10,7 @@ from flask import render_template, \
 from sqlalchemy import and_
 import json
 
-from py2neo import Graph
+# from py2neo import Graph
 
 api_v1 = Blueprint('my', __name__)
 
@@ -72,7 +72,7 @@ def modify():
             uid2 = request.form['uid']  # 用户id
             umessage = request.form['message']  # 用户反馈的信息
             m1 = User(uid=uid2, message=umessage)  # 用户信息对象
-           # db.session.add(u1)
+            db.session.add(u1)
             db.session.commit()
         except:
             info1 = "该问题您已经反馈过了，请勿重复操作"
@@ -322,44 +322,25 @@ def get_carddata():
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
 
     # get links这部分要增多的话可以简化
+    corn = ["萝卜", "丝瓜", "西瓜", "豌豆", "草莓", "青菜"]
 
-    sas = f'MATCH (n:`作物`) RETURN  collect(n.name) as cast LIMIT 50'
-    c_corn = graph.run(sas).data()
-    corn = c_corn[0].get('cast')
-    print(corn)
-    #corn = corn + corn_data
-    #corn = ["萝卜", "丝瓜", "西瓜", "豌豆", "草莓", "青菜"]
+    for i in range(6):
+        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 10'
+        data = graph.run(sas).data()
+        # print(data)
+        for i in range(len(data)):
+            data[i]['value'] = 3
+        # print(data)
 
-    data = []
-    data2 = []
-    for i in range(0,25):
-        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 60'
-        c_data = graph.run(sas).data()
-        data = data +c_data
-
-
-        #print(data)
-    for i in range(len(data)):
-        data[i]['value'] = 3
-        data[i]['target'] = data[i]['target'] + " "
-    print("data:")
-    print(data)
-
-
-    for i in range(0,25):
-        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`虫害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 60'
-        c_data2 = graph.run(sas).data()
-        data2 = data2 +c_data2
+    for i in range(6):
+        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`虫害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 10'
+        data2 = graph.run(sas).data()
         # print(data2)
         for i in range(len(data2)):
             data2[i]['value'] = 3
-
-        # print("data2:")
         # print(data2)
 
     all_links_data = data + data2
-    print("all_links")
-    print(all_links_data)
     # links_dict = {"links":all_links_data}
     # print(links_dict)
     # all_data1=json.dumps(links_dict, ensure_ascii=False)
@@ -367,7 +348,7 @@ def get_carddata():
 
     # 作物note
     zw_list = []
-    for i in range(0, 25):
+    for i in range(0, 6):
         keys = ["group", "class", "size", "id"]
         values = [0, "作物", 20, f"{corn[i]}"]
         zw_dict = dict(zip(keys, values))
@@ -377,7 +358,7 @@ def get_carddata():
 
     # 虫害note
     ch_list = []
-    for i in range(0, 25):
+    for i in range(0, 6):
         sas = f'MATCH path=(m:`作物`)<-[r]-(p:`虫害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
         ch_note = graph.run(sas).data()
         # print(bh_note)
@@ -396,50 +377,85 @@ def get_carddata():
 
     # 病害note
     bh_list = []
-    for i in range(0, 25):
+    for i in range(0, 6):
         sas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
         bh_note = graph.run(sas).data()
         # print(bh_note)
 
         bh_note_list = bh_note[0].get("cast")
-        #print(bh_note_list)
+        # print(bh_note_list)
         for n in bh_note_list:
             keys = ["group", "class", "size", "id"]
-            values = [2, "病害", 8, f"{n} "]
+            values = [2, "病害", 8, f"{n}"]
             bh_dict = dict(zip(keys, values))
             # print(ch_dict)
             bh_list.append(bh_dict)
     #   print(corn[i])
     # print("病害list")
-        print(bh_list)
-
-
+    # print(bh_list)
 
     # 数据拼接
     all_notes_data = zw_list + ch_list + bh_list
-
-
-    all_links_data2 = []
-    for item in all_links_data:
-        all_links_data2.append(frozenset(item.items()))
-    all_links_data2 = [dict(x) for x in set(tuple(x) for x in all_links_data2)]
-
-    all_notes_data2 = []
-    for item in all_notes_data:
-        all_notes_data2.append(frozenset(item.items()))
-    all_notes_data2 = [dict(x) for x in set(tuple(x) for x in all_notes_data2)]
-
-    f_dict = {"links": all_links_data2, "nodes": all_notes_data2}
+    f_dict = {"links": all_links_data, "nodes": all_notes_data}
     # print(f_dict)
 
-    #f_data = json.dumps(f_dict, ensure_ascii=False)
+    f_data = json.dumps(f_dict, ensure_ascii=False)
     # print(f_data)
-    return jsonify(f_dict)
+    return jsonify(f_data)
+
+'''
+
+    rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as cast order by rand() limit 1'
+    r_note = graph.run(rsas).data()
+    #print(type(r_note))
+    #print(r_note[0])
+    rr_note = r_note[0].get("cast")
+    #print("rr_note")
+    #print(rr_note)
+    #print(type(rr_note))
+    sas = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}"  return n.name as 病害 , m.name as 症状'
+    zz_note = graph.run(sas).data()
+    #print("zz_note")
+    #print(zz_note)
+
+    #f_key = f"{r_note[0]}"#zz_note[0].get("病害")
+
+    sas2 = f'MATCH (n:`病害`)-[r:`危害作物`]->(m:`作物`) WHERE n.name="{rr_note}"  return m.name as 危害作物'
+    zw_note = graph.run(sas2).data()
+    #print("zw_note")
+    #print(zw_note)
+
+    sas3 = f'MATCH (n:`病害`)-[r:`学名`]->(m:`学名`) WHERE n.name="{rr_note}"  return m.name as 学名'
+    xm_note = graph.run(sas3).data()
+    #print("xm_note")
+    #print(xm_note)
+
+    sas4 = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}" return m.name as 症状'
+    jj_note = graph.run(sas4).data()
+    #print("jj_note")
+    #print(jj_note)
+
+    dict_note1 = zz_note[0] | zw_note[0] | xm_note[0] | jj_note[0]
+
+    f_dict = {rr_note:dict_note1}
+    #print("f_dict")
+    #print(f_dict)
+
+    ff_dict = json.dumps(f_dict, ensure_ascii=False)
+    print(ff_dict)
+    #print(zz_note[0])
+    #print(type(zz_note[0]))
+
+    #print(dict_note1)
+'''
+
+
+# 去除上面''''''和368行return，注释322的return可以测试
+# return 0
 
 
 # 每日推荐（随机取一个病害节点，返回其病害名，症状，危害的作物名，学名
-@api_v2.route('/dayrecommended', methods=['POST', 'GET'])
-def get_showdata():
+def mrtj():
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
     rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as cast order by rand() limit 1'
     r_note = graph.run(rsas).data()
@@ -466,7 +482,21 @@ def get_showdata():
     return ff_dict
 
 
-# formatted_json(render_template('sohw_day.html'))
+
+
+# 每日推荐
+@api_v2.route('/dayrecommended', methods=['POST', 'GET'])
+def get_showdata():
+    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+    sas = 'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "小麦"   RETURN m.name as source,r.weight as value,d.name as target'
+    data = graph.run(sas).data()
+    print(data)
+    for i in range(len(data)):
+        data[i]["value"] = 3
+    print(data)
+    # data1=json.dumps(data, ensure_ascii=False)
+    # print(data1)
+    return data  # formatted_json(render_template('sohw_day.html'))
 
 
 # 问答
