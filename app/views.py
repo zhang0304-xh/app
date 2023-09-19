@@ -10,7 +10,7 @@ from flask import render_template, \
 from sqlalchemy import and_
 import json
 
-# from py2neo import Graph
+from py2neo import Graph
 
 api_v1 = Blueprint('my', __name__)
 
@@ -63,6 +63,39 @@ def modify2():
     else:
         return render_template('fail_modify.html')
 
+    # uava = request.files['avatar'].read() # 头像
+    # if(uava != None):
+    #     # data_url = request.files['avatar'].read()  # 这里假设前端将Base64字符串放在名为'base64Image'的字段中
+    #     # print(uava)
+    #     # 解码Base64字符串
+    #     # _, encoded = data_url.split(',', 1)
+    #     image_data = str(base64.b64decode(uava))
+    #     print(image_data)
+    #     # 将图像数据存储在数据库中，这里假设使用SQLAlchemy进行数据库操作
+    #     # user.avatar_data = image_data
+    #     # db.session.commit()
+    #     # uava2 = base64.b64encode(uava)
+    #     User.query.filter(User.uid == uid2).update({"avatar":image_data})
+    #     db.session.commit()
+    #
+    #     uemail = request.form['uemail']  # 密码
+    #     if (uemail != None):
+    #         User.query.filter(User.uid == uid2).update({"email": uemail})
+    #         db.session.commit()
+    #     upnumber = request.form['phoneNumber']  # 手机号t
+    #     if (upnumber != None):
+    #         User.query.filter(User.uid == uid2).update({"phoneNumber": upnumber})
+    #         db.session.commit()
+    #
+    #     return render_template('success_modify.html')
+    # else:
+    #     return render_template('fail_modify.html')
+
+@api_v1.route('/my/feedback')
+def register():
+    return render_template('FeedBack.html')
+
+
 
 # 用户反馈信息
 @api_v1.route('/my/feedback', methods=['POST', 'GET'])
@@ -72,7 +105,7 @@ def modify():
             uid2 = request.form['uid']  # 用户id
             umessage = request.form['message']  # 用户反馈的信息
             m1 = User(uid=uid2, message=umessage)  # 用户信息对象
-            db.session.add(u1)
+            db.session.add(m1)
             db.session.commit()
         except:
             info1 = "该问题您已经反馈过了，请勿重复操作"
@@ -303,7 +336,7 @@ def get_node_data():
     #         # 添加更多 links 对象...
     #     ],
     #     'nodes': [
-    #         {"group": 0, "class": "作物", "size": 20, "id": "萝卜"},
+    #         {"group": 0, "class": "作物", "size": 20, "id": "萝卜", "size": 20, "size": 20, "size": 20, "size": 20, "size": 20},
     #         {"group": 0, "class": "作物", "size": 20, "id": "丝瓜"},
     #         {"group": 0, "class": "作物", "size": 20, "id": "西瓜"},
     #         # 添加更多 nodes 对象...
