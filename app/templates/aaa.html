@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Knowledge Graph</title>
+		<script src="https://cdn.jsdelivr.net/npm/echarts@5.1.0/dist/echarts.min.js"></script>
+	</head>
+	<body>
+		<h1 style="color:#fff;font-size:32px;margin-bottom:0px;text-align:center;margin-left:40px;">知识图谱</h1>
+		<div style="text-align: center; position:relative;">
+			<div id="chart"
+				style="width: 100%; height: 900px; background-color: #272b30">
+			</div>
+			<div id="node-info"></div>
+			<div id="indicator">
+			</div>
+			<div id="aaa">
+				<form id="search-form">
+					<div class="gz_search_tab">
+						<input type="text" name="search" id="search">
+						<input type="button" value="搜索" onclick="addSearchRecord()">
+					</div>
+					<select id="search-history" name="search-history" onchange="searchFromHistory()" class="select">
+						<option value="">选择搜索记录</option>
+					</select>
+				</form>
+			</div>
+			<div id="info">
+				<h4></h4>
+			</div>
+		</div>
+		<div style="text-align: center; position:relative;">
+			<svg width="960" height="240" style="margin-right:60px;margin-bottom:-40px;" id="svg1">
+				<g></g>
+			</svg>
+		</div>
+
+	</body>
+	<style type="text/css">
+		body {
+			background-color: #272b30;
+			padding: 30px 40px;
+			text-align: center;
+			font-family: OpenSans-Light, PingFang SC, Hiragino Sans GB, Microsoft Yahei, Microsoft Jhenghei, sans-serif;
+		}
+
+		#indicator {
+			position: absolute;
+			left: 60px;
+			bottom: 120px;
+			text-align: left;
+			color: #f2f2f2;
+			font-size: 12px;
+		}
+
+		#indicator>div {
+			margin-bottom: 4px;
+		}
+
+		#indicator span {
+			display: inline-block;
+			width: 30px;
+			height: 14px;
+			position: relative;
+			top: 2px;
+			margin-right: 8px;
+		}
+
+		.links line {
+			stroke: rgb(240, 240, 240);
+			stroke-opactity: 0.2;
+		}
+
+		.links line.inactive {
+			/*display: none !important;*/
+			stroke-opacity: 0;
+		}
+
+		.nodes circle {
+			stroke: #fff;
+			stroke-width: 1.5px;
+		}
+
+		.nodes circle:hover {
+			cursor: pointer;
+		}
+
+		.nodes circle.inactive {
+			display: none !important;
+		}
+
+		.texts text {
+			display: none;
+		}
+
+		.texts text:hover {
+			cursor: pointer;
+		}
+
+		.texts text.inactive {
+			display: none !important;
+		}
+
+
+
+		#mode {
+			position: absolute;
+			top: 160px;
+			left: 60px;
+		}
+
+		#mode span {
+			display: inline-block;
+			border: 1px solid #fff;
+			color: #fff;
+			padding: 6px 10px;
+			border-radius: 4px;
+			font-size: 14px;
+			transition: color, background-color .3s;
+			-o-transition: color, background-color .3s;
+			-ms-transition: color, background-color .3s;
+			-moz-transition: color, background-color .3s;
+			-webkit-transition: color, background-color .3s;
+		}
+
+		#mode span.active,
+		#mode span:hover {
+			background-color: #fff;
+			color: #333;
+			cursor: pointer;
+		}
+
+
+		#info {
+			position: absolute;
+			bottom: 40px;
+			right: 30px;
+			text-align: right;
+			width: 270px;
+		}
+
+
+		#info p {
+			color: #fff;
+			font-size: 12px;
+			margin-top: 0;
+			margin-bottom: 5px;
+		}
+
+		#info p span {
+			color: #888;
+			margin-right: 10px;
+		}
+
+		#info h4 {
+			color: #fff;
+		}
+
+		.gz_search_tab {
+			width: 250px;
+			height: 30px;
+			line-height: 28px;
+			background: #FFF;
+			border-radius: 5px 5px 5px 5px;
+			box-shadow: 0 0 10px #999;
+		}
+
+		.gz_search_tab input[type="text"] {
+			font-size: 16px;
+			background: left center no-repeat;
+			height: 20px;
+			line-height: 20px;
+			border: 0;
+			text-indent: 10px;
+			outline: none;
+		}
+
+		.select {
+			font-size: 5px;
+			border: 1px solid #bdb2b2;
+			border-radius: 5px;
+			outline: none;
+			width: 250px;
+			height: 20px;
+			line-height: 40px;
+			background: no-repeat right center transparent;
+			color: #bdb2b2;
+		}
+
+		#aaa {
+			position: absolute;
+			top: 100px;
+			left: 20px;
+			color: #fff;
+			border: none;
+			outline: none;
+			box-shadow: none;
+		}
+		 #node-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none; /* 初始状态隐藏节点信息 */
+        }
+	</style>
+	<script type="text/javascript">
+		function addSearchRecord() {
+			var searchInput = document.getElementById("search");
+			var searchValue = searchInput.value;
+
+			if (searchValue) {
+				var historySelect = document.getElementById("search-history");
+				var option = document.createElement("option");
+				option.text = searchValue;
+				historySelect.add(option);
+
+				// 跳转到后端接口，传递搜索值
+
+			}
+		}
+
+		function searchFromHistory() {
+			var historySelect = document.getElementById("search-history");
+			var selectedValue = historySelect.value;
+
+			if (selectedValue) {
+				// 跳转到后端接口，传递搜索值
+
+			}
+		}
+		fetch('/node_data')
+        .then(response => response.json())
+        .then(chartData => {
+
+            var colorPalette = ['#FF6666', '#FFCC66', '#FFFF66', '#66CC66', '#66CCCC', '#6666CC', '#CC66CC'];
+
+            var chartDom = document.getElementById('chart');
+            var myChart = echarts.init(chartDom);
+
+            var option = {
+                series: [
+                    {
+                        type: 'graph',
+                        layout: 'force',
+                        roam: true,
+                        symbolSize: 80,
+                        draggable: true,
+                        force: {
+                            repulsion: 1000,
+                            edgeLength: [100, 300],
+                            layoutAnimation: true,
+                            drag: true,
+                            focusNodeAdjacency: true,
+                            preventOverlap: true,
+                            seriesDraggable: true
+                        },
+                        label: {
+                            show: true,
+                            fontSize: 14,
+                            formatter: function(params) {
+                                return params.data.id + '\n' + params.data.class;
+                            },
+                            position: 'inside',
+                            distance: 10,
+                            draggable: true,
+                        },
+                        edgeSymbol: ['arrow', 'none'],
+                        edgeSymbolSize: [6, 0],
+                        edgeLabel: {
+                            fontSize: 12,
+                            color: '#888'
+                        },
+                        data: chartData.nodes,
+                        links: chartData.links,
+                        emphasis: {
+                            focus: 'adjacency',
+                            lineStyle: {
+                                width: 10
+                            }
+                        },
+                        lineStyle: {
+                            curveness: 0.2,
+                            color: '#999'
+                        },
+                        itemStyle: {
+                            color: function (params) {
+                                return colorPalette[params.data.group % colorPalette.length];
+                            }
+                        }
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+
+            myChart.on('click', function(params) {
+                if (params.dataType === 'node') {
+                    var nodeInfo = document.getElementById('node-info');
+                    nodeInfo.innerText = params.data.id + '\nClass: ' + params.data.class;
+                    nodeInfo.style.display = 'block';
+                }
+            });
+        });
+	</script>
+</html>

@@ -10,7 +10,7 @@ from flask import render_template, \
 from sqlalchemy import and_
 import json
 
-# from py2neo import Graph
+from py2neo import Graph
 
 api_v1 = Blueprint('my', __name__)
 
@@ -72,7 +72,7 @@ def modify():
             uid2 = request.form['uid']  # 用户id
             umessage = request.form['message']  # 用户反馈的信息
             m1 = User(uid=uid2, message=umessage)  # 用户信息对象
-            db.session.add(u1)
+            # db.session.add(u1)
             db.session.commit()
         except:
             info1 = "该问题您已经反馈过了，请勿重复操作"
@@ -290,10 +290,10 @@ api_v2 = Blueprint('hii', __name__)
 
 @api_v2.route('/')
 def my_index():
-    return render_template('main_kg7.html')
+    return render_template('aaa.html')
 
 
-@api_v2.route('/node_data')
+@api_v2.route('/node1_data')
 def get_node_data():
     # chart_data = {
     #     'links': [
@@ -315,7 +315,7 @@ def get_node_data():
         data_node = json.load(file)
     return jsonify(data_node)
 
-@api_v2.route('/node1_data')
+@api_v2.route('/node_data')
 def get_carddata():
     # 假设后端返回的JSON数据为data
 
@@ -395,13 +395,26 @@ def get_carddata():
     # print(bh_list)
 
     # 数据拼接
-    all_notes_data = zw_list + ch_list + bh_list
-    f_dict = {"links": all_links_data, "nodes": all_notes_data}
+    all_notes_data = zw_list + ch_list
+
+    all_notes_data2 = []
+    for l1 in all_notes_data:
+        if l1 not in all_notes_data2:
+            all_notes_data2.append(l1)
+
+    all_links_data2 = []
+    for l2 in all_links_data:
+        if l2 not in all_links_data2:
+            all_links_data2.append(l2)
+
+
+    f_dict = {"links": all_links_data2, "nodes": all_notes_data2}
     # print(f_dict)
+
 
     f_data = json.dumps(f_dict, ensure_ascii=False)
     # print(f_data)
-    return jsonify(f_data)
+    return jsonify(f_dict)
 
 '''
 
