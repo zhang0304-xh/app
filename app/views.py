@@ -293,7 +293,7 @@ def my_index():
     return render_template('main_kg7.html')
 
 
-@api_v2.route('/node1_data')
+@api_v2.route('/node_data')
 def get_node_data():
     # chart_data = {
     #     'links': [
@@ -315,7 +315,7 @@ def get_node_data():
         data_node = json.load(file)
     return jsonify(data_node)
 
-@api_v2.route('/node_data')
+@api_v2.route('/node1_data')
 def get_carddata():
     # 假设后端返回的JSON数据为data
 
