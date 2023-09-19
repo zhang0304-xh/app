@@ -7,7 +7,7 @@ class User(db.Model):
     uid = db.Column(db.Integer, primary_key=True)  # 默认设置自增长
     username = db.Column(db.String(128), unique=True)
     password = db.Column(db.String(128))
-    avatar = db.Column(db.String(128))#存储二进制文件
+    avatar = db.Column(db.Text)#存储二进制文件
     phoneNumber = db.Column(db.String(128))
     email = db.Column(db.String(128))
 
@@ -28,3 +28,8 @@ class Collect(db.Model):
     time = db.Column(db.DATETIME, primary_key=True)
     text = db.Column(db.String(128), primary_key=True)
     ifQuestion = db.Column(db.String(128))
+
+class Feedback(db.Model):
+    __tablename__ = 'Feedback'
+    uid = db.Column(db.Integer, ForeignKey(User.uid), primary_key=True)
+    message = db.Column(db.String(128), primary_key=True)
