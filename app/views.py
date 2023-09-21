@@ -432,6 +432,7 @@ def get_carddata():
     f_dict = {"links": all_links_data2, "nodes": all_notes_data2}
     # print(f_dict)
 
+
     return f_dict
 
 
@@ -459,10 +460,9 @@ def get_showdata():
     list_note1 = [key for key in dict_note1]
     list_note2 = [value for value in dict_note1.values()]
     list_note3 = list_note1 + list_note2
-    #这里前端能不能写如果报错取不出数据（没有传给数据或者传出数据为空）则重新拉取一次数据（重新调用，刷新）
-    #print(list_note3)
+    print(list_note3)
     # print(dict_note1)
-    #print(type(list_note3))
+    print(type(list_note3))
     # dict_note2 = list(dict_note1.items())
     # print(dict_note2)
     # dict_note3 = list(dict_note2)
@@ -473,38 +473,11 @@ def get_showdata():
 # formatted_json(render_template('sohw_day.html'))
 
 
-
-
 # 问答
-@api_v2.route('/api/tryChat', methods=['POST', 'GET'])
-def getdata():
-    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
-    a = request.form.get('mydata')
-    word = str(a)
-    sent = model.predict(word)
-    #sent = [{'病害': '玉米大斑病'}, '防治方法']
-    sent1 = sent[0]
-    for key, value in sent1.items():
-        sent1_keys = key
-        sent1_value = value
-    #print(sent1_keys, sent1_value)
-    sent2 = sent[1]
-    #print(sent2)
-    asas = f'MATCH (n:`{sent1_keys}`) - [r:`{sent2}`] -> (m) WHERE n.name="{sent1_value}" RETURN m.name as content'
-    answ = graph.run(asas).data()
-    #print(answ)
-    answ2 = answ[0].get('content')
-    chatWord = json.dumps(answ2, ensure_ascii=False)
-    #print(answ)
-    return chatWord
-
-
-
-
-
-
-
-
+@api_v2.route('/resourceshome', methods=['POST', 'GET'])
+def getdata(sent):
+    formatter_json = model.predict(sent)
+    return formatter_json(render_template('show_resources.html'))
 
 
 # 表单接收,请求获取网页结果给后端
