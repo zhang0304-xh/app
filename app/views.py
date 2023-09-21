@@ -432,7 +432,6 @@ def get_carddata():
     f_dict = {"links": all_links_data2, "nodes": all_notes_data2}
     # print(f_dict)
 
-
     return f_dict
 
 
@@ -479,24 +478,25 @@ def get_showdata():
 # 问答
 @api_v2.route('/api/tryChat', methods=['POST', 'GET'])
 def getdata():
+    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
     a = request.form.get('mydata')
     word = str(a)
     sent = model.predict(word)
-    answ = sent[0].get('content')
-    #chatWord = json.dumps(answ, ensure_ascii=False)
-    # #print(answ)
-    return answ#chatWord
-    '''
-    # #sent = [{'病害': '玉米大斑病'}, '防治方法']
-    # sent1 = sent[0]
-    # for key, value in sent1.items():
-    #     sent1_keys = key
-    #     sent1_value = value
-    # #print(sent1_keys, sent1_value)
-    # sent2 = sent[1]
-    # #print(sent2)
-    # asas = f'MATCH (n:`{sent1_keys}`) - [r:`{sent2}`] -> (m) WHERE n.name="{sent1_value}" RETURN m.name as content'
-    # answ = graph.run(asas).data()'''
+    #sent = [{'病害': '玉米大斑病'}, '防治方法']
+    sent1 = sent[0]
+    for key, value in sent1.items():
+        sent1_keys = key
+        sent1_value = value
+    #print(sent1_keys, sent1_value)
+    sent2 = sent[1]
+    #print(sent2)
+    asas = f'MATCH (n:`{sent1_keys}`) - [r:`{sent2}`] -> (m) WHERE n.name="{sent1_value}" RETURN m.name as content'
+    answ = graph.run(asas).data()
+    #print(answ)
+    answ2 = answ[0].get('content')
+    chatWord = json.dumps(answ2, ensure_ascii=False)
+    #print(answ)
+    return chatWord
 
 
 

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>搜索框和下拉列表示例</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .search-history {
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        function addSearchRecord() {
+            var searchInput = document.getElementById("search");
+            var searchValue = searchInput.value;
+
+            if (searchValue) {
+                var historySelect = document.getElementById("search-history");
+                var option = document.createElement("option");
+                option.text = searchValue;
+                historySelect.add(option);
+
+                // 跳转到后端接口，传递搜索值
+                window.location.assign("{{ url_for('api_v2') }}?searchValue=" + encodeURIComponent(searchValue));
+            }
+        }
+
+        function searchFromHistory() {
+            var historySelect = document.getElementById("search-history");
+            var selectedValue = historySelect.value;
+
+            if (selectedValue) {
+                // 跳转到后端接口，传递搜索值
+                window.location.assign("{{ url_for('api_v2') }}?searchValue=" + encodeURIComponent(searchValue));
+            }
+        }
+    </script>
+</head>
+<body>
+<form id="search-form">
+    <label for="search">搜索：</label>
+    <input type="text" id="search" name="search">
+
+    <input type="button" value="添加搜索记录" onclick="addSearchRecord()">
+
+    <label for="search-history">搜索记录：</label>
+    <select id="search-history" name="search-history" onchange="searchFromHistory()">
+        <option value="">选择搜索记录</option>
+    </select>
+
+    <input type="button" value="搜索" onclick="document.getElementById('search-form').submit()">
+</form>
+</body>
+</html>
