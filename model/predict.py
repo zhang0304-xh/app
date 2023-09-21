@@ -145,11 +145,11 @@ def question_deal(sent):
 
         cypher = "MATCH(n1: {0})-[r: {1}]->(n2) where  n1.name= '{2}' return n2.name as content"  # 查询模板
 
-        #keywords = list(slots.values())[0][0]
+        keywords = list(slots.values())[0][0]
 
         #print(keywords)
-        #cypher = cypher.format(list(slots.keys())[0], pred_intents[0], keywords)
-        # print(cypher)
+        cypher = cypher.format(list(slots.keys())[0], pred_intents[0], keywords)
+        print(cypher)
         #匹配查出的关键词
         #sas = f"MATCH (n:{keywords[0]})-[r:{keywords[1]}]->(n2)  return n2"
         data = graph.run(cypher).data()
@@ -158,6 +158,18 @@ def question_deal(sent):
 
         return data#json_data
         responce = []
+        for a in data:
+            for tk, tv in a.items():
+                nodes = tv.nodes
+                # _node = Node(nodes[0])
+                for n in nodes:
+                    obj_properties = {}
+                    for k, v in n.items():
+                        obj_properties[k] = v
+
+                    print(obj_properties)
+                    responce.append(obj_properties['name'])
+
         if not responce:
             return '抱歉，您的问题暂未收录'
         else:
@@ -173,4 +185,9 @@ def question_deal(sent):
 
 
 
-
+#
+# if __name__ == '__main__':
+#
+#     sent='玉米大斑病如何防治？'
+#
+#     print(question_deal(sent))
