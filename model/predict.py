@@ -38,13 +38,13 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")
 
-idx2intent, intent2idx = lord_label_dict("../data/agis/intent_label.txt")
-idx2slot, slot2idx = lord_label_dict("../data/agis/slot_label.txt")
-embedding_file = open("../data/agis/emb_word.txt", "r", encoding="utf-8")
+idx2intent, intent2idx = lord_label_dict("data/agis/intent_label.txt")
+idx2slot, slot2idx = lord_label_dict("data/agis/slot_label.txt")
+embedding_file = open("data/agis/emb_word.txt", "r", encoding="utf-8")
 embeddings = [emb.strip() for emb in embedding_file]
 embedding_word, vocab = process_emb(embeddings, emb_dim=300)
 
-model = torch.load('../model/agis_model.bin', map_location=device)
+model = torch.load('model/agis_model.bin', map_location=device)
 model.eval()
 
 adict_light = {"1": 0, "2": 1, "3": 2, "4": 3}  # 字典
@@ -108,7 +108,8 @@ def parse_slot(slot_labels, text):
     return keywords
 
 def question_deal(sent):
-    try:
+    # try:
+
         graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
         # 识别意图及槽位
         # slot, intent = text.split(',')
@@ -135,6 +136,7 @@ def question_deal(sent):
 
         slots = parse_slot(pred, sent)
 
+
         # ['B-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'I-DIS', 'O', 'O', 'O', 'O', 'O']
         pred_intents = [idx2intent[intent] for intent in pred_intents]
 
@@ -157,37 +159,37 @@ def question_deal(sent):
         #json_data = json.dumps(data, ensure_ascii=False)
 
         return data#json_data
-        responce = []
-        for a in data:
-            for tk, tv in a.items():
-                nodes = tv.nodes
-                # _node = Node(nodes[0])
-                for n in nodes:
-                    obj_properties = {}
-                    for k, v in n.items():
-                        obj_properties[k] = v
+        # responce = []
+        # for a in data:
+        #     for tk, tv in a.items():
+        #         nodes = tv.nodes
+        #         # _node = Node(nodes[0])
+        #         for n in nodes:
+        #             obj_properties = {}
+        #             for k, v in n.items():
+        #                 obj_properties[k] = v
+        #
+        #             print(obj_properties)
+        #             responce.append(obj_properties['name'])
+        #
+        # if not responce:
+        #     return '抱歉，您的问题暂未收录'
+        # else:
+        #
+        #     if len(responce) > 2030:
+        #         responce = responce[:2030] + '...'
+        #
+        #     return ','.join(responce)
+    # except:
 
-                    print(obj_properties)
-                    responce.append(obj_properties['name'])
-
-        if not responce:
-            return '抱歉，您的问题暂未收录'
-        else:
-
-            if len(responce) > 2030:
-                responce = responce[:2030] + '...'
-
-            return ','.join(responce)
-    except:
-
-            return '您的问题暂未收录'
-        #return cypher
+            # return '您的问题暂未收录'
+        # return cypher
 
 
 
 #
-# if __name__ == '__main__':
-#
-#     sent='玉米大斑病如何防治？'
-#
-#     print(question_deal(sent))
+if __name__ == '__main__':
+
+    sent='玉米大斑病如何防治？'
+
+    print(question_deal(sent))
