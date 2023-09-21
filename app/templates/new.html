@@ -1,0 +1,20 @@
+from flask import Flask, request, render_template
+import base64
+app = Flask(__name__)
+
+@app.route('/upload', methods=['POST'])
+def upload_base64_image():
+    data_url = request.form['base64Image']  # 这里假设前端将Base64字符串放在名为'base64Image'的字段中
+
+    # 解码Base64字符串
+    _, encoded = data_url.split(',', 1)
+    image_data = base64.b64decode(encoded)
+
+    # 将图像数据存储在数据库中，这里假设使用SQLAlchemy进行数据库操作
+    # user.avatar_data = image_data
+    # db.session.commit()
+
+    return 'Image uploaded and stored successfully'
+
+if __name__ == '__main__':
+    app.run()
