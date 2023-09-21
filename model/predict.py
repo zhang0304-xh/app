@@ -143,20 +143,20 @@ def question_deal(sent):
         # else:
         #     responce = "存在多个意图"
 
-        cypher = "MATCH(n1: {0})-[r: {1}]->(n2) where  n1.name= '{2}' return n2"  # 查询模板
+        cypher = "MATCH(n1: {0})-[r: {1}]->(n2) where  n1.name= '{2}' return n2.name as content"  # 查询模板
 
-        keywords = list(slots.values())[0][0]
+        #keywords = list(slots.values())[0][0]
 
         #print(keywords)
         #cypher = cypher.format(list(slots.keys())[0], pred_intents[0], keywords)
         # print(cypher)
         #匹配查出的关键词
-        sas = f"MATCH (n:{keywords[0]})-[r:{keywords[1]}]->(n2)  return n2"
-        data = graph.run(sas).data()
-        json_data = json.dumps(data, ensure_ascii=False)
-        json_data2 = json.dumps(json.loads(json_data), ensure_ascii=False)
-        formatted_json = json.dumps(json.loads(json_data2), ensure_ascii=False, indent=4)
-        return formatted_json
+        #sas = f"MATCH (n:{keywords[0]})-[r:{keywords[1]}]->(n2)  return n2"
+        data = graph.run(cypher).data()
+
+        #json_data = json.dumps(data, ensure_ascii=False)
+
+        return data#json_data
         responce = []
         if not responce:
             return '抱歉，您的问题暂未收录'
