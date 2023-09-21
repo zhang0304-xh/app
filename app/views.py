@@ -317,7 +317,7 @@ def get_node_data():
 
 @api_v2.route('/node_data')
 def get_carddata():
-    # 假设后端返回的JSON数据为data
+    #假设后端返回的JSON数据为data
 
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
 
@@ -333,7 +333,7 @@ def get_carddata():
     data = []
     data2 = []
     for i in range(0,25):
-        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 60'
+        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 40'
         c_data = graph.run(sas).data()
         data = data +c_data
 
@@ -341,13 +341,13 @@ def get_carddata():
         #print(data)
     for i in range(len(data)):
         data[i]['value'] = 3
-        data[i]['target'] = data[i]['target'] + " "
-    print("data:")
-    print(data)
+        data[i]['target'] = data[i]['target'] + "3"
+    # print("data:")
+    # print(data)
 
 
     for i in range(0,25):
-        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`虫害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 60'
+        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`虫害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 40'
         c_data2 = graph.run(sas).data()
         data2 = data2 +c_data2
         # print(data2)
@@ -358,8 +358,8 @@ def get_carddata():
         # print(data2)
 
     all_links_data = data + data2
-    print("all_links")
-    print(all_links_data)
+    #print("all_links")
+    #print(all_links_data)
     # links_dict = {"links":all_links_data}
     # print(links_dict)
     # all_data1=json.dumps(links_dict, ensure_ascii=False)
@@ -405,13 +405,13 @@ def get_carddata():
         #print(bh_note_list)
         for n in bh_note_list:
             keys = ["group", "class", "size", "id"]
-            values = [2, "病害", 8, f"{n} "]
+            values = [2, "病害", 8, f"{n}3"]
             bh_dict = dict(zip(keys, values))
             # print(ch_dict)
             bh_list.append(bh_dict)
     #   print(corn[i])
     # print("病害list")
-        print(bh_list)
+        #print(bh_list)
 
 
 
@@ -432,9 +432,8 @@ def get_carddata():
     f_dict = {"links": all_links_data2, "nodes": all_notes_data2}
     # print(f_dict)
 
-    #f_data = json.dumps(f_dict, ensure_ascii=False)
-    # print(f_data)
-    return jsonify(f_dict)
+
+    return f_dict
 
 
 # 每日推荐（随机取一个病害节点，返回其病害名，症状，危害的作物名，学名
@@ -454,16 +453,21 @@ def get_showdata():
     sas3 = f'MATCH (n:`病害`)-[r:`学名`]->(m:`学名`) WHERE n.name="{rr_note}"  return m.name as 学名'
     xm_note = graph.run(sas3).data()
 
-    sas4 = f'MATCH (n:`病害`)-[r:`简介`]->(m:`简介`) WHERE n.name="{rr_note}" return m.name as 简介'
-    jj_note = graph.run(sas4).data()
+    # sas4 = f'MATCH (n:`病害`)-[r:`简介`]->(m:`简介`) WHERE n.name="{rr_note}" return m.name as 简介'
+    # jj_note = graph.run(sas4).data()
 
-    dict_note1 = zz_note[0] | zw_note[0] | xm_note[0] | jj_note[0]
-
-    f_dict = {rr_note: dict_note1}
-
-    ff_dict = json.dumps(f_dict, ensure_ascii=False)
-    # print(ff_dict)
-    return ff_dict
+    dict_note1 = zz_note[0] | zw_note[0] | xm_note[0]  # | jj_note[0]
+    list_note1 = [key for key in dict_note1]
+    list_note2 = [value for value in dict_note1.values()]
+    list_note3 = list_note1 + list_note2
+    print(list_note3)
+    # print(dict_note1)
+    print(type(list_note3))
+    # dict_note2 = list(dict_note1.items())
+    # print(dict_note2)
+    # dict_note3 = list(dict_note2)
+    # print(dict_note3)
+    return list_note3  # jsonify(f_dict)
 
 
 # formatted_json(render_template('sohw_day.html'))
