@@ -17,73 +17,25 @@ from py2neo import Graph
 api_v1 = Blueprint('my', __name__)
 
 
-@api_v1.route('/')  # 个人中心页面
+@api_v1.route('/my')  # 个人中心页面
 def index():
     # message.user = None
-    return redirect(url_for('map.recommend',id=1))
+    return render_template('my.html')
 
-# 用户登录页面
-@api_v1.route('/login', methods=['POST', 'GET'])
-def login():
+
+# 修改用户信息
+@api_v1.route('/my/modify')
+def register():
+    return render_template('modifyMessage.html')
+
+
+@api_v1.route('/my/modify_implement', methods=['POST', 'GET'])
+def modify2():
     if request.method == 'POST':
-        user = User.query.all()
-        for i in user:
-            if request.form['username'] == i.username and request.form['password'] == i.password:
-                # return render_template('每日推荐.html',id=i.uid)
-                return redirect(url_for('map.recommend',id=i.uid))
-        else:
-            # 没有登陆成功怎么办
-            return '<script> alert("登录失败");window.open("/");</script>'
-
-# 用户注册
-@api_v1.route('/register_check', methods=['POST', 'GET'])
-def register_check():
-    if request.method == 'POST':
-        uname = request.form['username']
-        upass = request.form['password']
-        # uava = request.files['avatar'].read()
-        # uava = ""
-        # print(uava)
-        # data = uava.read()  # 读取文件内容
-        # uava = uava.encode('base64', 'strict')
-        # avatar_data = request.files['avatar'].read()  # 读取文件数据为字节数组
-        # avatar_str = base64.b64encode(uava.endoce('utf-8')) # 将字节数组编码为字符串
-        upnumber = request.form['phoneNumber']
-        u1 = User(username=uname, password=upass, phoneNumber=upnumber)
-        db.session.add(u1)
-        db.session.commit()
-        return render_template('登陆注册.html')
-        # 跳到success函数所指向的url
-    elif request.method == "GET":  # 没有登录，就返回个人中心页面
-        return render_template('登陆注册.html')
-
-@api_v1.route('/search/<int:id>/')
-def search(id):
-    # user_info = User.query.filter(User.id == 1).first()
-    # >>> users = User.query.filter_by(username='admin').all()
-    # list=User.query.filter_by(uid = id).all()
-    # print(list)
-    list = db.session.query(User).filter_by(uid=id).all()
-    for i in list:
-        username1 = i.username
-        email1 = i.email
-        phonenumber1 = i.phoneNumber
-    return render_template('个人信息查询.html',id=id,username=username1,email=email1,phoneNumber=phonenumber1)
-
-@api_v1.route('/modifyy/<int:id>/')
-def modify1(id):
-    return render_template('个人信息修改.html',id=id)
-
-@api_v1.route('/feedbackk/<int:id>/')
-def feedback1(id):
-    return render_template('反馈.html',id=id)
-
-@api_v1.route('/modify', methods=['POST', 'GET'])
-def modify():
-    if request.method == 'POST':
-        uid2 = request.form['uid']
         # uid2 = request.form['uid']#用户id
+        uid2 = "9"
         # User.query.filter(User.uid == uid2)
+
         # for i in user:
         #     print(user.username)
         uname = request.form['username']  # 用户名
@@ -104,42 +56,86 @@ def modify():
         if (uemail != None):
             User.query.filter(User.uid == uid2).update({"email": uemail})
             db.session.commit()
-        upnumber = request.form['uphoneNumber']  # 手机号t
+        upnumber = request.form['phoneNumber']  # 手机号t
         if (upnumber != None):
             User.query.filter(User.uid == uid2).update({"phoneNumber": upnumber})
             db.session.commit()
-        return render_template('个人信息修改.html',id=uid2)
-    return render_template('个人信息修改.html', id=id)
+
+        return render_template('success_modify.html')
+    else:
+        return render_template('fail_modify.html')
+
 
 # 用户反馈信息
-@api_v1.route('/feedback', methods=['POST', 'GET'])
-def feedback():
+@api_v1.route('/my/feedback', methods=['POST', 'GET'])
+def modify():
     if request.method == 'POST':
-        uid2 = request.form['uid']  # 用户id
         try:  # 捕获数据库异常，防止用户重复反馈报错
+            uid2 = request.form['uid']  # 用户id
             umessage = request.form['message']  # 用户反馈的信息
-            m1 = Feedback(uid=uid2, message=umessage)  # 用户信息对象
-            db.session.add(m1)
+            m1 = User(uid=uid2, message=umessage)  # 用户信息对象
+           # db.session.add(u1)
             db.session.commit()
         except:
             info1 = "该问题您已经反馈过了，请勿重复操作"
-            # return redirect(url_for('my.feedback1', id=uid2))
-            pass
-        return redirect(url_for('my.feedback1', id=uid2))
+            return render_template('fail_feedback.html', info=info1)
+        return render_template('success_feedback.html')
 
-# @api_v1.route('/my/success_login')
-# def success_login():
-#     if 'username' in session:
-#         username1 = session['username']
-#         uid1 = session['uid']
-#         avatar1 = session['avatar']
-#         phoneNumber1 = session['phoneNumber']
-#     return render_template('success_login.html', username=username1, uid=uid1, avatar=avatar1, phoneNumber=phoneNumber1)
-#
-#
-# @api_v1.route('/my/fail_login')  # 登录失败
-# def fail_login():
-#     return render_template('unlogin.html')
+
+# 用户登录页面
+@api_v1.route('/my/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        # 获取数据库所有信息，存下来，把用户输入与数据库比对
+        user = User.query.all()
+        for i in user:
+            if request.form['username'] == i.username and request.form['password'] == i.password:
+                response = make_response('success_login')  # 登录成功，返回给前端的值
+                session['islogin'] = 'true'  # 是否已经登录的标识
+                session['uid'] = i.uid
+                session['username'] = i.username  # 根据自己的需求，在session里存储一些值
+                session['avatar'] = i.avatar
+                session['phoneNumber'] = i.phoneNumber
+                # response.set_cookie('username', i.username,
+                #                     max_age=30 * 24 * 3600) #max_age，cookie的存活时间，这里表示一个月
+                # response.set_cookie('avatar', i.avatar)
+                # response.set_cookie('phoneNumber', i.phoneNumber, max_age=30 * 24 * 3600)
+                #
+                # return redirect(url_for('success_login'))
+                # user2 = {
+                #     'uid': i.uid,
+                #     'username': i.username,
+                #     'password': i.password,
+                #     'avatar': i.avatar,
+                #     'phoneNumber': i.phoneNumber
+                # }
+                # g.uid = user2['uid']
+                # g.username = user2['username']
+                # g.password = user2['password']
+                # g.avatar = user2['avatar']
+                # g.phoneNumber = user2['phoneNumber']
+                # print(g)
+                # print(g.username)
+                return redirect(url_for('my.success_login'))  # 跳到success函数所指向的url
+        return redirect(url_for('my.fail_login'))
+    # elif request.method == "GET":#没有登录，就返回个人中心页面
+    #     return redirect(url_for(index))
+
+
+@api_v1.route('/my/success_login')
+def success_login():
+    if 'username' in session:
+        username1 = session['username']
+        uid1 = session['uid']
+        avatar1 = session['avatar']
+        phoneNumber1 = session['phoneNumber']
+    return render_template('success_login.html', username=username1, uid=uid1, avatar=avatar1, phoneNumber=phoneNumber1)
+
+
+@api_v1.route('/my/fail_login')  # 登录失败
+def fail_login():
+    return render_template('unlogin.html')
+
 
 '''
 # #用户退出
@@ -164,18 +160,43 @@ def feedback():
 
 # 设置允许上传的文件格式
 ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg']
-'''
-#
-# @api_v1.route('/my/register')
-# def register1():
-#     return render_template('register.html')
+
+
+@api_v1.route('/my/register')
+def register():
+    return render_template('register.html')
+
+
+# 用户注册
+@api_v1.route('/my/register_check', methods=['POST', 'GET'])
+def register_check():
+    if request.method == 'POST':
+        uname = request.form['username']
+        upass = request.form['password']
+        # uava = request.files['avatar'].read()
+        uava = ""
+        # print(uava)
+
+        # data = uava.read()  # 读取文件内容
+        # uava = uava.encode('base64', 'strict')
+        # avatar_data = request.files['avatar'].read()  # 读取文件数据为字节数组
+        # avatar_str = base64.b64encode(uava.endoce('utf-8')) # 将字节数组编码为字符串
+        upnumber = request.form['phoneNumber']
+        u1 = User(username=uname, password=upass, avatar=uava, phoneNumber=upnumber)
+        db.session.add(u1)
+        db.session.commit()
+        return render_template('print_userMessage.html',name=uname)
+        # 跳到success函数所指向的url
+
+    elif request.method == "GET":  # 没有登录，就返回个人中心页面
+        return redirect(url_for('index'))
 
 
 # @api_v1.route('/my/print_userMessage')
 # def success_register():
 #     return render_template('print_userMessage.html')
 
-'''
+
 # 查看收藏的知识卡片
 @api_v1.route('/my/collected_card', methods=['POST', 'GET'])
 def collected_card():  # 需要前端传来该用户的id
@@ -266,28 +287,35 @@ def Get_UserData():
 #     # # 提交任务
 #     # db.session
 '''
-api_v2 = Blueprint('map', __name__)
+api_v2 = Blueprint('hii', __name__)
 
 
-@api_v2.route('/recommend/<int:id>/')
-def recommend(id):
-    # id = request.form.get('id')
-    list_note1 = get_showdata()
-    list_note2 = get_showdata()
-    list_note3 = get_showdata()
-    return render_template('每日推荐.html',id=id,list_note1=list_note1,list_note2=list_note2,list_note3=list_note3)
+@api_v2.route('/')
+def my_index():
+    return render_template('question.html')
 
-@api_v2.route('/mapp/<int:id>/')
-def mapp(id):
-    return render_template('aaa.html',id=id)
 
-@api_v2.route('/questionn/<int:id>/')
-def question1(id):
-    return render_template('question.html',id=id)
-
-@api_v2.route('/indexx/<int:id>/')
-def index1(id):
-    return render_template('个人中心.html',id=id)
+@api_v2.route('/node1_data')
+def get_node_data():
+    # chart_data = {
+    #     'links': [
+    #         {"source": "青菜", "value": 3, "target": "青菜菌核病"},
+    #         {"source": "青菜", "value": 3, "target": "青菜绵腐病"},
+    #         {"source": "青菜", "value": 3, "target": "青菜炭疽病"},
+    #         # 添加更多 links 对象...
+    #     ],
+    #     'nodes': [
+    #         {"group": 0, "class": "作物", "size": 20, "id": "萝卜"},
+    #         {"group": 0, "class": "作物", "size": 20, "id": "丝瓜"},
+    #         {"group": 0, "class": "作物", "size": 20, "id": "西瓜"},
+    #         # 添加更多 nodes 对象...
+    #     ]
+    # }
+    # return jsonify(chart_data)
+    # 假设后端返回的JSON数据为data
+    with open('app/starwar_alldata.json', 'r') as file:
+        data_node = json.load(file)
+    return jsonify(data_node)
 
 @api_v2.route('/node_data')
 def get_carddata():
@@ -297,7 +325,7 @@ def get_carddata():
 
     # get links这部分要增多的话可以简化
 
-    sas = f'MATCH (n:`作物`) RETURN  collect(n.name) as cast LIMIT 1'
+    sas = f'MATCH (n:`作物`) RETURN  collect(n.name) as cast LIMIT 50'
     c_corn = graph.run(sas).data()
     corn = c_corn[0].get('cast')
     print(corn)
@@ -388,6 +416,7 @@ def get_carddata():
         #print(bh_list)
 
 
+
     # 数据拼接
     all_notes_data = zw_list + ch_list + bh_list
 
@@ -412,60 +441,40 @@ def get_carddata():
 @api_v2.route('/dayrecommended', methods=['POST', 'GET'])
 def get_showdata():
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
-    rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as 病害 order by rand() limit 1'
+    rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as cast order by rand() limit 1'
     r_note = graph.run(rsas).data()
-    rr_note = r_note[0].get("病害")
+    rr_note = r_note[0].get("cast")
 
-
-
-
-    sas = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}"  return  m.name as 症状'
-
+    sas = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}"  return n.name as 病害 , m.name as 症状'
     zz_note = graph.run(sas).data()
-    print("zz_note")
-    print(zz_note)
-    if zz_note == [] :
-        zz_note = [{'症状':'无'}]
-
 
     sas2 = f'MATCH (n:`病害`)-[r:`危害作物`]->(m:`作物`) WHERE n.name="{rr_note}"  return m.name as 危害作物'
-
     zw_note = graph.run(sas2).data()
-    if zw_note == [] :
-        zw_note = [{'危害作物':'无'}]
-
-
 
     sas3 = f'MATCH (n:`病害`)-[r:`学名`]->(m:`学名`) WHERE n.name="{rr_note}"  return m.name as 学名'
-
     xm_note = graph.run(sas3).data()
-    if xm_note == [] :
-        xm_note = [{'学名': '无'}]
 
     # sas4 = f'MATCH (n:`病害`)-[r:`简介`]->(m:`简介`) WHERE n.name="{rr_note}" return m.name as 简介'
     # jj_note = graph.run(sas4).data()
 
-    # option 1:
-    dict_note1 = r_note[0].copy()
-    dict_note1.update(zz_note[0])
-    dict_note1.update(zw_note[0])
-    dict_note1.update(xm_note[0])
-    # dict_note1 = zz_note[0] | zw_note[0] | xm_note[0]  # | jj_note[0]
+    dict_note1 = zz_note[0] | zw_note[0] | xm_note[0]  # | jj_note[0]
     list_note1 = [key for key in dict_note1]
     list_note2 = [value for value in dict_note1.values()]
     list_note3 = list_note1 + list_note2
     #这里前端能不能写如果报错取不出数据（没有传给数据或者传出数据为空）则重新拉取一次数据（重新调用，刷新）
-    print(list_note3)
+    #print(list_note3)
     # print(dict_note1)
     #print(type(list_note3))
     # dict_note2 = list(dict_note1.items())
     # print(dict_note2)
     # dict_note3 = list(dict_note2)
     # print(dict_note3)
-    return list_note3   # jsonify(f_dict)
+    return list_note3  # jsonify(f_dict)
 
 
 # formatted_json(render_template('sohw_day.html'))
+
+
 
 
 # 问答
@@ -479,6 +488,15 @@ def getdata():
     # chatWord = json.dumps(answ, ensure_ascii=False)
     print(answ)
     return answ  # chatWord
+
+
+
+
+
+
+
+
+
 
 # 表单接收,请求获取网页结果给后端
 @api_v2.route('/resourceshome', methods=['POST', 'GET'])
