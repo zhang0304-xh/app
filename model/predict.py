@@ -188,8 +188,8 @@ def question_deal(sent):
 
 
 #
-if __name__ == '__main__':
-
-    sent='玉米大斑病如何防治？'
-
-    print(question_deal(sent))
+# if __name__ == '__main__':
+#
+#     sent='玉米大斑病如何防治？'
+#
+#     print(question_deal(sent))

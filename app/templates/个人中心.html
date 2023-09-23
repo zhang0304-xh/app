@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style type="text/css">
+			body {
+			margin: 0;
+			padding: 0;
+		}
+			.nav a {
+				display: inline-table;
+				font: 13px/23px Arial, sans-serif;
+				text-decoration: none;
+				color: #222;
+				font-weight: 500;
+				float: right;
+				font-size: 16px;
+				color: rgb(105, 142, 106);
+				padding-top: 3px;
+				padding-right: 120px;
+			}
+
+			.nav a:hover {
+				color: #73AE52;
+			}
+
+			.nav {
+				width: 100%;
+				height: 45px;
+				background-color: #FBF1D7;
+				font-size: 18px;
+				font-weight: 600;
+				font-family: 'Courier New' '微软雅黑';
+				color: rgb(105, 142, 106);
+				padding-top: 15px;
+				padding-left: 50px;
+			}
+
+			.main {
+				margin-left: 100px;
+				/* margin-right: 130px; */
+				width: 1200px;
+				height: 700px;
+			}
+
+			.daohang {
+				width: 15%;
+				height: 100%;
+				float: left;
+			}
+
+			.ul {
+				white-space: nowrap;
+				overflow: hidden;
+				text-align: center;
+				padding-right: 10px;
+			}
+
+			.li {
+				overflow: hidden;
+				margin-bottom: 10px;
+				text-align: center;
+			}
+
+			li a {
+				display: inline-block;
+				color: #111;
+				font-size: 20px;
+				text-align: left;
+				padding: 3rpx;
+				overflow: hidden;
+				text-decoration: none;
+				margin-top: 3rem;
+			}
+
+			li a:hover {
+				background-color: #ffffff;
+
+			}
+
+			.content {
+				height: 100%;
+				background-color: #ffffff;
+				padding-left: 13rem;
+			}
+
+			.daohang1 {
+				padding-top: 30px;
+				padding-right: 50px;
+			}
+		</style>
+	</head>
+	<title>个人中心</title>
+	<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+
+	<script>
+		$(function() {
+			$("#userHead").click(function() {
+				$("#btn_file").click(); //隐藏了input:file样式，点击头像就可以选择文件
+				$("#btn_file").on("change", function() {
+					var objUrl = getObjectUrl(this.files[0]); //获取图片的路径，该路径不是图片在本地的路径
+					if (objUrl) {
+						$("userHead").attr("src", objUrl); //将图片路径存入src,显示图片
+					}
+				});
+
+			});
+
+
+		});
+
+		function getObjectUrl(file) {
+			var url = null;
+			if (window.createObjectURL != undefined) {
+				url = window.createObjectURL(file);
+			} else if (window.URL != undefined) {
+				url = window.URL.createObjectURL(file);
+			} else if (window.webkitURL != undefined) {
+				url = window.webkitURL.createObjectURL(file);
+			}
+			return url;
+
+		}
+	</script>
+	<body>
+		<div class="nav">
+			农业知识图谱智能问答系统
+			<a href="{{ url_for('map.index1',id=id) }}" class="more" target="_blank" class="shezhi">个人中心</a>
+			<a href="{{ url_for('map.mapp',id=id) }}" target="_blank">知识图谱</a>
+			<a href="{{ url_for('map.question1',id=id) }}" class="wangpan" target="_blank">知识问答</a>
+			<a href="{{ url_for('map.recommend',id=id) }}" class="radio" target="_blank">每日推荐</a>
+		</div>
+		<div class="main" style="margin-left:230px;">
+			<div class="daohang">
+				<ul>
+					<div class="daohang1">
+						<input type="file" id="btn_file" name="file" style="display:none;">
+						<img src="{{url_for('static',filename='img6.jpg')}}" class="img-rounded" id="userHead"
+							style="height:120px;width:120px;border-radius: 50%;border-style: solid;">
+					</div>
+					<li><a href="{{ url_for('my.search',id=id) }}" target="menuFrame">个人信息查询</a></li>
+					<li><a href="{{ url_for('my.modify1',id=id) }}" target="menuFrame">个人信息修改</a></li>
+					<li><a href="{{ url_for('my.feedback1',id=id) }}" target="menuFrame">用户反馈</a></li>
+					<li><a href="{{ url_for('my.index') }}">退出登录</a></li>
+				</ul>
+			</div>
+			<div class="content">
+				<iframe id="menuFrame" name="menuFrame" style="background: #ffffff; background-size: cover; width:
+					100%; height: 100%; float: center; margin-top:20px;">
+				</iframe>
+			</div>
+		</div>
+	</body>
+</html>
