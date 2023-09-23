@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<style type="text/css">
+			body {
+				margin: 0;
+				padding: 0;
+				justify-content: center;
+				align-items: center;
+				min-height: 100vh;
+				background: linear-gradient(to bottom right,
+						rgb(155, 180, 150) 0%,
+						rgb(129, 163, 128) 50%,
+						rgb(105, 142, 106) 100%);
+				font-family: 'Poppins', sans-serif;
+			}
+
+			.head {
+				width: 100%;
+				height: 50px;
+				margin-bottom: 17rpx;
+				background-color: white;
+			}
+
+			.head ul {
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+
+			.head ul li {
+				float: left;
+				margin: 0;
+				padding: 0;
+			}
+
+			.head ul li a {
+				display: block;
+				width: 257px;
+				color: black;
+				background-color: white;
+				text-align: center;
+				text-decoration: none;
+				margin-left: 5rem;
+				margin-top: 0rem;
+				padding-top: 10px;
+				padding-bottom: 10px;
+				font-size: 20px;
+			}
+
+			.head ul li a:hover {
+				background-color: gray;
+			}
+
+			.container {
+				width: 70rem;
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: space-between;
+				padding-left: 13rem;
+				margin-left:80px;
+			}
+
+			.box {
+				position: relative;
+				width: 300px;
+				height: 400px;
+				background: #000;
+				box-shadow: 0 30px 30px rgba(0, 0, 0, .5);
+			}
+
+			.box .imgBx {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}
+
+			.box .imgBx img {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				transition: 0.5s;
+			}
+
+			.box:hover .imgBx img {
+				opacity: 0;
+			}
+
+			.box .content {
+				position: absolute;
+				bottom: 20px;
+				left: 10%;
+				width: 80%;
+				height: 60px;
+				background: #fafafa;
+				transition: 0.5s;
+				overflow: hidden;
+				padding: 15px;
+				box-sizing: border-box;
+			}
+
+			.box:hover .content {
+				width: 100%;
+				height: 100%;
+				bottom: 0;
+				left: 0;
+			}
+
+			.box .content h3 {
+				margin: 0;
+				padding: 0;
+				font-size: 20px;
+				text-align: center;
+			}
+
+			.box .content p {
+				margin: 10px 0 0;
+				padding: 0;
+				opacity: 0;
+				line-height: 1.6em;
+				transition: 0.5s;
+				text-align: justify;
+			}
+
+			.box .content p a {
+				color: #222;
+				text-decoration: none
+			}
+
+			.box .content p :hover {
+				color: #00a6bc;
+			}
+
+			.box:hover .content p {
+				opacity: 1;
+				transition-delay: 0.5s;
+			}
+
+			h1 {
+				margin-top: 4rem;
+				margin-left: 31rem;
+				margin-right: 20rem;
+				margin-bottom: 5rem;
+				text-align: center;
+				color: #000000;
+				font-family: Arial, Helvetica, sans-serif;
+				cursor: pointer;
+				-webkit-box-reflect: below 0 -webkit-linear-gradient(transparent, transparent 50%, rgba(255, 255, 255, .3));
+				font: bold 50px/1.231 georgia, sans-serif;
+				text-transform: uppercase;
+				font-size: 28px;
+
+			}
+
+			h1:hover {}
+
+			a {
+				text-decoration: none;
+				color: white;
+			}
+
+			.ul {
+				white-space: nowrap;
+				overflow: hidden;
+				text-align: center;
+				padding-right: 10px;
+			}
+
+			.li {
+				overflow: hidden;
+				margin-bottom: 10px;
+				text-align: center;
+			}
+
+			li a {
+				display: inline-block;
+				color: #111;
+				font-size: 20px;
+				text-align: left;
+				padding: 3rpx;
+				overflow: hidden;
+				text-decoration: none;
+				margin-top: 3rem;
+			}
+
+			li a:hover {
+				background-color: #ffffff;
+
+			}
+.nav a {
+				display: inline-table;
+				font: 13px/23px Arial, sans-serif;
+				text-decoration: none;
+				color: #222;
+				font-weight: 500;
+				float: right;
+				font-size: 16px;
+				color: rgb(105, 142, 106);
+				padding-top: 3px;
+				padding-right: 120px;
+			}
+
+			.nav a:hover {
+				color: #73AE52;
+			}
+
+			.nav {
+				width: 100%;
+				height: 45px;
+				background-color: #FBF1D7;
+				font-size: 18px;
+				font-weight: 600;
+				font-family: 'Courier New' '微软雅黑';
+				color: rgb(105, 142, 106);
+				padding-top: 15px;
+				padding-left: 50px;
+			}
+		</style>
+		<title>每日推荐</title>
+	</head>
+
+	<body>
+		<!--		<div class="head">-->
+		<!--			<ul>-->
+		<!--				<li><a href="{{ url_for('map.recommend',id=id) }}" style="color:gray; target=" target="blank">每日推荐</a></li>-->
+		<!--				<li><a href="{{ url_for('map.mapp',id=id) }}" target="blank">知识图谱</a></li>-->
+		<!--				<li><a href="{{ url_for('map.question1',id=id) }}" target="blank">知识问答</a></li>-->
+		<!--				<li><a href="{{ url_for('map.index1',id=id) }}" target="blank">个人中心</a>-->
+		<!--				</li>-->
+		<!--			</ul>-->
+		<!--		</div>-->
+		<div class="nav">
+			农业知识图谱智能问答系统
+			<a href="{{ url_for('map.index1',id=id) }}" class="more" target="_blank" class="shezhi">个人中心</a>
+			<a href="{{ url_for('map.mapp',id=id) }}" target="_blank">知识图谱</a>
+			<a href="{{ url_for('map.question1',id=id) }}" class="wangpan" target="_blank">知识问答</a>
+			<a href="{{ url_for('map.recommend',id=id) }}" class="radio" target="_blank">知识卡片</a>
+		</div>
+		<div class="container">
+			<h1>知识卡片</h1>
+			<div class="box">
+				<div class="imgBx">
+					<img src="{{url_for('static',filename='img1.jpg')}}">
+				</div>
+				<div class="content">
+					<h3>{{ list_note1[4] }}</h3>
+					<div style="width: 100%;height: 100%; overflow-x:hidden;">
+						<p>
+							{{list_note1[1]}}：{{ list_note1[5] }}<br>
+							{{list_note1[2]}}：{{ list_note1[6] }}<br>
+							{{list_note1[3]}}：{{ list_note1[7] }}<br><br>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="box">
+				<div class="imgBx">
+					<img src="{{url_for('static',filename='img2.jpg')}}">
+				</div>
+				<div class="content">
+					<h3>{{ list_note2[4] }}</h3>
+					<div style="width: 100%;height: 100%; overflow-x:hidden;">
+					<p>
+						{{list_note2[1]}}：{{ list_note2[5] }}<br>
+						{{list_note2[2]}}：{{ list_note2[6] }}<br>
+						{{list_note2[3]}}：{{ list_note2[7] }}<br><br>
+					</p>
+					</div>
+				</div>
+			</div>
+			<div class="box">
+				<div class="imgBx">
+					<img src="{{url_for('static',filename='img3.jpg')}}">
+				</div>
+				<div class="content">
+					<h3>{{ list_note3[4] }}</h3>
+					<div style="width: 100%;height: 100%; overflow-x:hidden;">
+					<p>
+						{{list_note3[1]}}：{{ list_note3[5] }}<br>
+						{{list_note3[2]}}：{{ list_note3[6] }}<br>
+						{{list_note3[3]}}：{{ list_note3[7] }}<br><br>
+					</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<input type="hidden" value="${}" id="">
+		<script>
+			var button = document.getElementById("head");
+			button.addEventListener("click", function() {
+				button.style.backgroundColor = "red"; /* 点击按钮后将背景颜色更改为红色 */
+				button.style.color = "black"; /* 点击按钮后将文本颜色更改为黑色 */
+			});
+		</script>
+	</body>
+
+</html>

@@ -6,13 +6,20 @@
 		<script src="https://cdn.jsdelivr.net/npm/echarts@5.1.0/dist/echarts.min.js"></script>
 	</head>
 	<body>
-		<h1 style="color:#fff;font-size:32px;margin-bottom:0px;text-align:center;margin-left:40px;">知识图谱</h1>
+	<div class="nav">
+			农业知识图谱智能问答系统
+			<a href="{{ url_for('map.index1',id=id) }}" class="more" target="_blank" class="shezhi">个人中心</a>
+			<a href="{{ url_for('map.mapp',id=id) }}" target="_blank">知识图谱</a>
+			<a href="{{ url_for('map.question1',id=id) }}" class="wangpan" target="_blank">知识问答</a>
+			<a href="{{ url_for('map.recommend',id=id) }}" class="radio" target="_blank">知识卡片</a>
+		</div>
 		<div style="text-align: center; position:relative;">
 			<div id="chart"
-				style="width: 100%; height: 900px; background-color: #272b30">
+				style="width:100%; height: 900px; background-color: white;">
 			</div>
 			<div id="node-info"></div>
 			<div id="indicator">
+				<h1 style="color:rgb(129, 163, 128);font-size:32px;margin-bottom:720px;text-align:center;margin-left:750px;">知识图谱</h1>
 			</div>
 			<div id="aaa">
 				<form id="search-form">
@@ -38,10 +45,9 @@
 	</body>
 	<style type="text/css">
 		body {
-			background-color: #272b30;
-			padding: 30px 40px;
-			text-align: center;
+			background-color: white;
 			font-family: OpenSans-Light, PingFang SC, Hiragino Sans GB, Microsoft Yahei, Microsoft Jhenghei, sans-serif;
+			margin: 0;
 		}
 
 		#indicator {
@@ -206,6 +212,34 @@
             border-radius: 5px;
             display: none; /* 初始状态隐藏节点信息 */
         }
+      .nav a {
+				display: inline-table;
+				font: 13px/23px Arial, sans-serif;
+				text-decoration: none;
+				color: #222;
+				font-weight: 500;
+				float: right;
+				font-size: 16px;
+				color: rgb(105, 142, 106);
+				padding-top: 3px;
+				padding-right: 120px;
+			}
+
+			.nav a:hover {
+				color: #73AE52;
+			}
+
+			.nav {
+				width: 100%;
+				height: 45px;
+				background-color: #FBF1D7;
+				font-size: 18px;
+				font-weight: 600;
+				font-family: 'Courier New' '微软雅黑';
+				color: rgb(105, 142, 106);
+				padding-top: 15px;
+				padding-left: 50px;
+			}
 	</style>
 	<script type="text/javascript">
 		function addSearchRecord() {
@@ -235,8 +269,7 @@
 		fetch('/node_data')
         .then(response => response.json())
         .then(chartData => {
-
-            var colorPalette = ['#FF6666', '#FFCC66', '#FFFF66', '#66CC66', '#66CCCC', '#6666CC', '#CC66CC'];
+            var colorPalette = ['#aaaaff','#9Fc0af','#FFC0CB','#ca635f', '#FFC0CB', '#BA55D3', '#1E90FF', '#7FFFD4', '#FFFF00'];
 
             var chartDom = document.getElementById('chart');
             var myChart = echarts.init(chartDom);
@@ -304,6 +337,14 @@
                     nodeInfo.style.display = 'block';
                 }
             });
+            myChart.setOption(option);
+			myChart.on('mouseup', function(params) {
+				var option = myChart.getOption();
+				option.series[0].data[params.dataIndex].x = params.event.offsetX;
+				option.series[0].data[params.dataIndex].y = params.event.offsetY;
+				option.series[0].data[params.dataIndex].fixed = true;
+				myChart.setOption(option);
+			});
         });
 	</script>
 </html>
