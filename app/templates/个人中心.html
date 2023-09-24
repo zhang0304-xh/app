@@ -46,8 +46,9 @@
 			}
 
 			.daohang {
-				width: 15%;
+				width: 18%;
 				height: 100%;
+				padding-bottom: 3px;
 				float: left;
 					background: linear-gradient(to bottom right,
 				rgb(155, 180, 150) 0%,
@@ -87,7 +88,7 @@
 			.content {
 				height: 100%;
 				background-color: #ffffff;
-				padding-left: 11.3rem;
+				padding-left: 13.5rem;
 
 			}
 
@@ -146,7 +147,6 @@
 						<img src="{{url_for('static',filename='img6.jpg')}}" class="img-rounded" id="userHead"
 							style="height:120px;width:120px;border-radius: 50%;border-style: solid;">
 					</div>
-					<li><a href="{{ url_for('my.search',id=id) }}" target="menuFrame">个人信息查询</a></li>
 					<li><a href="{{ url_for('my.modify1',id=id) }}" target="menuFrame">个人信息修改</a></li>
 					<li><a href="{{ url_for('my.feedback1',id=id) }}" target="menuFrame">用户反馈</a></li>
 					<li><a href="{{ url_for('my.index') }}">退出登录</a></li>
