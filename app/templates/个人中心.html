@@ -6,6 +6,7 @@
 			body {
 			margin: 0;
 			padding: 0;
+			background-color: #ffffff;
 		}
 			.nav a {
 				display: inline-table;
@@ -41,12 +42,17 @@
 				/* margin-right: 130px; */
 				width: 1200px;
 				height: 700px;
+				background-color: #FBF1D7;
 			}
 
 			.daohang {
 				width: 15%;
 				height: 100%;
 				float: left;
+					background: linear-gradient(to bottom right,
+				rgb(155, 180, 150) 0%,
+				rgb(129, 163, 128) 50%,
+				rgb(105, 142, 106) 100%);
 			}
 
 			.ul {
@@ -64,7 +70,7 @@
 
 			li a {
 				display: inline-block;
-				color: #111;
+				color: white;
 				font-size: 20px;
 				text-align: left;
 				padding: 3rpx;
@@ -74,20 +80,22 @@
 			}
 
 			li a:hover {
-				background-color: #ffffff;
+				background-color: rgb(155, 180, 150);
 
 			}
 
 			.content {
 				height: 100%;
 				background-color: #ffffff;
-				padding-left: 13rem;
+				padding-left: 11.3rem;
+
 			}
 
 			.daohang1 {
 				padding-top: 30px;
 				padding-right: 50px;
 			}
+
 		</style>
 	</head>
 	<title>个人中心</title>
@@ -131,7 +139,7 @@
 			<a href="{{ url_for('map.recommend',id=id) }}" class="radio" target="_blank">每日推荐</a>
 		</div>
 		<div class="main" style="margin-left:230px;">
-			<div class="daohang">
+			<div class="daohang" style="margin-top:20px;">
 				<ul>
 					<div class="daohang1">
 						<input type="file" id="btn_file" name="file" style="display:none;">
@@ -145,7 +153,7 @@
 				</ul>
 			</div>
 			<div class="content">
-				<iframe id="menuFrame" name="menuFrame" style="background: #ffffff; background-size: cover; width:
+				<iframe id="menuFrame" name="menuFrame" style="background:#ffffff; background-size: cover; width:
 					100%; height: 100%; float: center; margin-top:20px;">
 				</iframe>
 			</div>

@@ -6,9 +6,9 @@
 			.btn {
 				width: 8rem;
 				height: 3rem;
-				background: radial-gradient(circle, #f8f9f3 0%, #FBF1D7 100%);
+				background: radial-gradient(circle, rgb(105, 142, 106) 0%, rgb(105, 142, 106) 100%);
 				border: none;
-				color: #000000;
+				color: #ffffff;
 				font-family: 'Lato', sans-serif;
 				font-weight: 2;
 				font-size: 1rem;
@@ -16,6 +16,8 @@
 				cursor: pointer;
 				position: relative;
 				line-height: 12px;
+				align-self: center;
+				margin-left: 23rem;
 			}
 
 			.btn span {
@@ -106,10 +108,9 @@
 				<br />
 			</td>
 			<input type="text" name="uid" id="changeID" value={{id}} style="display: none"><br>
-			<input class="btn" style="display:block; margin:2rem auto" type="submit" onclick="disp_alert()"
+			<input class="btn" style="margin:0 0 0 21rem" type="submit" onclick="disp_alert()"
 				value="反&nbsp;馈">
-			<br>
-			<input class=" btn" style="display:block; margin:0 auto" type="reset" value="取&nbsp;消">
+			<input class="btn" style="margin:0 0 0 2rem" type="reset" value="取&nbsp;消">
 		</form>
 	</body>
 	<script type="text/javascript">
