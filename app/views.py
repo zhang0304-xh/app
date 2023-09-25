@@ -488,5 +488,59 @@ def getdata():
 # 表单接收,请求获取网页结果给后端
 @api_v2.route('/resourceshome', methods=['POST', 'GET'])
 def get_sent():
-    sent = request.form.get('sent')
-    return sent
+    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+    word = request.form.get('word')
+    word = str(word)
+    sas = f'MATCH (n)-[r]->(m) WHERE n.name="{word}" RETURN DISTINCT n.name as source,type(r) as value,m.name as target order by rand() >3 LIMIT 50 '
+
+    # sas = f'MATCH (n)<-[r]-(m) WHERE n.name="{id}" RETURN n.name as source,type(r) as relation,m.name as target'
+    # link
+    c_list = graph.run(sas).data()
+
+    c_dict = {"links": c_list}
+    # print(c_dict)
+    at_list = []
+    rt_list = []
+    id_list = []
+
+    # node
+    sas2 = 'MATCH (n)<-[r]-(m) WHERE n.name="小麦" RETURN type(n) as ty'
+    nty_list = graph.run(sas2).data()
+    # print(nty_list)
+    head_list = [{'group': 0, 'class': f'{nty_list}', 'size': 35, 'name': f'{word}'}]
+    # print(head_list)
+    for i in range(len(c_list)):
+        at_list.append(c_list[i].get('target'))
+        rt_list.append(c_list[i].get('value'))
+
+    summ = len(c_list)
+
+    cn_list = []
+    class_number = 1
+    size_number = 30
+    for n in range(len(c_list) - 1):
+        keys = ["group", "class", "size", "name"]
+        # if n < summ-1:
+        #     sum = n+1;
+        # else:
+        #     sum = n;
+        class_old = rt_list[n]
+        class_new = rt_list[n + 1]
+
+        if class_old == class_new:
+            class_number = class_number
+            size_number = size_number
+            values = [class_number, f"{rt_list[n + 1]}", size_number, f"{at_list[n + 1]}"]
+        else:
+            class_number = class_number + 1
+            size_number = size_number - 5
+            values = [class_number, f"{rt_list[n + 1]}", size_number, f"{at_list[n + 1]}"]
+        # values = [class_number, f"{rt_list[n]}", size_number, f"{at_list[n]}"]
+
+        cyh_dict = dict(zip(keys, values))
+        print(cyh_dict)
+        cn_list.append(cyh_dict)
+        all_list2 = head_list + cn_list
+
+    f_dict = {"links": c_list, "nodes": all_list2}
+    return f_dict
