@@ -1,6 +1,7 @@
 # 路由 + 视图函数
 import base64
 import json
+import random
 
 from flask import Blueprint, jsonify
 
@@ -20,7 +21,7 @@ api_v1 = Blueprint('my', __name__)
 @api_v1.route('/')  # 个人中心页面
 def index():
     # message.user = None
-    return render_template('登陆注册.html')
+    return redirect(url_for('map.recommend',id=1))
 
 # 用户登录页面
 @api_v1.route('/login', methods=['POST', 'GET'])
@@ -302,7 +303,7 @@ def get_carddata():
 
     # get links这部分要增多的话可以简化
 
-    sas = f'MATCH (n:`作物`) RETURN  collect(n.name) as cast LIMIT 1'
+    sas = f'MATCH (n:`作物`) with n order by rand() > 1 RETURN  collect(n.name) as cast  limit 1'
     c_corn = graph.run(sas).data()
     corn = c_corn[0].get('cast')
     print(corn)
@@ -311,32 +312,77 @@ def get_carddata():
 
     data = []
     data2 = []
+    # for i in range(0,25):
+    #     sas = f'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "{corn}"   RETURN m.name as source,type(r) as value,d.name as target LIMIT 26'
+    #     c_data = graph.run(sas).data()
+    #     data = data +c_data
+#病害
+    # a = random.randrange()
     for i in range(0,25):
-        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`病害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 40'
+        sas = f'MATCH path=(m:`作物`)-[r]->(d:`病害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,type(r) as value,d.name as target LIMIT 8'
         c_data = graph.run(sas).data()
-        data = data +c_data
-
-
-        #print(data)
+        data = data + c_data
+    list1 = []
+    # for i in range(len(data)):
+    #     data[i]['target'] = data[i]['target']+"3"
     for i in range(len(data)):
-        data[i]['value'] = 3
-        data[i]['target'] = data[i]['target'] + "3"
-    # print("data:")
-    # print(data)
-
-
+        list1.append(data[i].get('target'))
+    print(list1)
+#虫害
     for i in range(0,25):
-        sas = f'MATCH path=(m:`作物`)<-[r]-(d:`虫害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,r.weight as value,d.name as target LIMIT 40'
-        c_data2 = graph.run(sas).data()
+        sas2 = f'MATCH path=(m:`作物`)-[r]->(d:`虫害`)   WHERE m.name = "{corn[i]}"   RETURN m.name as source,type(r) as value,d.name as target LIMIT 8'
+        c_data2 = graph.run(sas2).data()
         data2 = data2 +c_data2
-        # print(data2)
-        for i in range(len(data2)):
-            data2[i]['value'] = 3
+    # for i in range(len(data2)):
+    #         data2[i]['target'] = data2[i]['target']+" "
+    list2 = []
+    for i in range(len(data2)):
+        list2.append(data2[i].get('target'))
+    #print(list2)
+
+    all_links_data = data + data2
+    #print(all_links_data)
+
+    #node zw
+
+    zw_list = []
+    for i in range(0,25):
+        keys = ["group", "class", "size", "id"]
+        values = [0, "作物", 30, f"{corn[i]}"]
+        zw_dict = dict(zip(keys, values))
+        zw_list.append(zw_dict)
+
+    #node bh
+
+    bh_list = []
+    for i in list1:
+        keys = ["group", "class", "size", "id"]
+        values = [1, "病害", 20, f"{i}"]
+        bh_dict = dict(zip(keys, values))
+        bh_list.append(bh_dict)
+    #print(bh_list)
+    # print("作物list")
+    ch_list = []
+    for i in list2:
+        keys = ["group", "class", "size", "id"]
+        values = [2, "虫害", 26, f"{i}"]
+        ch_dict = dict(zip(keys, values))
+        ch_list.append(ch_dict)
+    #print(ch_list
+
+
+    # for i in range(0,25):
+    #     sas = f'MATCH path=(m:`作物`)-[r]->(d:`病害`)   WHERE m.name = "小麦"   RETURN m.name as source,type(r) as value,d.name as target LIMIT 40'
+    #     c_data2 = graph.run(sas).data()
+    #     data2 = data2 +c_data2
+    #     # print(data2)
+    #     for i in range(len(data2)):
+    #         data2[i]['value'] = 3
 
         # print("data2:")
         # print(data2)
 
-    all_links_data = data + data2
+    # all_links_data = data + data2
     #print("all_links")
     #print(all_links_data)
     # links_dict = {"links":all_links_data}
@@ -345,58 +391,58 @@ def get_carddata():
     # print(all_data1)
 
     # 作物note
-    zw_list = []
-    for i in range(0, 25):
-        keys = ["group", "class", "size", "id"]
-        values = [0, "作物", 20, f"{corn[i]}"]
-        zw_dict = dict(zip(keys, values))
-        zw_list.append(zw_dict)
-    # print("作物list")
-    # print(zw_list)
-
-    # 虫害note
-    ch_list = []
-    for i in range(0, 25):
-        sas = f'MATCH path=(m:`作物`)<-[r]-(p:`虫害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
-        ch_note = graph.run(sas).data()
-        # print(bh_note)
-
-        ch_note_list = ch_note[0].get("cast")
-        # print(bh_note_list)
-        for n in ch_note_list:
-            keys = ["group", "class", "size", "id"]
-            values = [1, "虫害", 5, f"{n}"]
-            ch_dict = dict(zip(keys, values))
-            # print(ch_dict)
-            ch_list.append(ch_dict)
-    #   print(corn[i])
-    # print("虫害list")
-    # print(ch_list)
-
-    # 病害note
-    bh_list = []
-    for i in range(0, 25):
-        sas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
-        bh_note = graph.run(sas).data()
-        # print(bh_note)
-
-        bh_note_list = bh_note[0].get("cast")
-        #print(bh_note_list)
-        for n in bh_note_list:
-            keys = ["group", "class", "size", "id"]
-            values = [2, "病害", 8, f"{n}3"]
-            bh_dict = dict(zip(keys, values))
-            # print(ch_dict)
-            bh_list.append(bh_dict)
-    #   print(corn[i])
-    # print("病害list")
-        #print(bh_list)
-
-
-    # 数据拼接
+    # zw_list = []
+    # for i in range(0, 25):
+    #     keys = ["group", "class", "size", "id"]
+    #     values = [0, "作物", 20, f"{corn[i]}"]
+    #     zw_dict = dict(zip(keys, values))
+    #     zw_list.append(zw_dict)
+    # # print("作物list")
+    # # print(zw_list)
+    #
+    # # 虫害note
+    # ch_list = []
+    # for i in range(0, 25):
+    #     sas = f'MATCH path=(m:`作物`)<-[r]-(p:`虫害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
+    #     ch_note = graph.run(sas).data()
+    #     # print(bh_note)
+    #
+    #     ch_note_list = ch_note[0].get("cast")
+    #     # print(bh_note_list)
+    #     for n in ch_note_list:
+    #         keys = ["group", "class", "size", "id"]
+    #         values = [1, "虫害", 5, f"{n}"]
+    #         ch_dict = dict(zip(keys, values))
+    #         # print(ch_dict)
+    #         ch_list.append(ch_dict)
+    # #   print(corn[i])
+    # # print("虫害list")
+    # # print(ch_list)
+    #
+    # # 病害note
+    # bh_list = []
+    # for i in range(0, 25):
+    #     sas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`) WHERE m.name ="{corn[i]}" RETURN  collect(p.name ) as cast'
+    #     bh_note = graph.run(sas).data()
+    #     # print(bh_note)
+    #
+    #     bh_note_list = bh_note[0].get("cast")
+    #     #print(bh_note_list)
+    #     for n in bh_note_list:
+    #         keys = ["group", "class", "size", "id"]
+    #         values = [2, "病害", 8, f"{n}3"]
+    #         bh_dict = dict(zip(keys, values))
+    #         # print(ch_dict)
+    #         bh_list.append(bh_dict)
+    # #   print(corn[i])
+    # # print("病害list")
+    #     #print(bh_list)
+    #
+    #
+    # # 数据拼接
     all_notes_data = zw_list + ch_list + bh_list
-
-
+    #
+    #
     all_links_data2 = []
     for item in all_links_data:
         all_links_data2.append(frozenset(item.items()))
@@ -406,9 +452,9 @@ def get_carddata():
     for item in all_notes_data:
         all_notes_data2.append(frozenset(item.items()))
     all_notes_data2 = [dict(x) for x in set(tuple(x) for x in all_notes_data2)]
-
+    #
     f_dict = {"links": all_links_data2, "nodes": all_notes_data2}
-    # print(f_dict)
+    print(f_dict)
 
     return f_dict
 
@@ -427,8 +473,8 @@ def get_showdata():
     sas = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}"  return  m.name as 症状'
 
     zz_note = graph.run(sas).data()
-    print("zz_note")
-    print(zz_note)
+    # print("zz_note")
+    # print(zz_note)
     if zz_note == [] :
         zz_note = [{'症状':'无'}]
 
