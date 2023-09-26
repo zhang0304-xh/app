@@ -22,7 +22,7 @@
 <!--				<h1 style="color:rgb(129, 163, 128);font-size:32px;margin-bottom:720px;text-align:center;margin-left:750px;">知识图谱</h1>-->
 <!--			</div>-->
 			<div id="aaa">
-				<form id="search-form">
+				<form id="search-form" onsubmit="addSearchRecord(); return false;">
 					<div class="gz_search_tab">
 						<input type="text" name="search" id="search">
 						<input type="button" value="搜索" onclick="addSearchRecord()">
@@ -31,6 +31,7 @@
 						<option value="">选择搜索记录</option>
 					</select>
 				</form>
+				<ul id="historyList"></ul>
 			</div>
 			<div id="info">
 				<h4></h4>
@@ -242,19 +243,24 @@
 			}
 	</style>
 	<script type="text/javascript">
+
 		function addSearchRecord() {
 			var searchInput = document.getElementById("search");
+
 			var searchValue = searchInput.value;
 
 			if (searchValue) {
 				var historySelect = document.getElementById("search-history");
 				var option = document.createElement("option");
+				console.log("5959");
 				option.text = searchValue;
+				console.log(option);
 				historySelect.add(option);
-
+				console.log(historySelect);
 				// 跳转到后端接口，传递搜索值
- 				window.location.assign("{{ url_for('map.search1',id=id,searchValue="小麦") }}")
+ 				window.location.assign("/searchh/" +{{id}} + "/" + encodeURIComponent(searchValue) + "/");
 			}
+
 		}
 
 		function searchFromHistory() {
@@ -263,7 +269,7 @@
 
 			if (selectedValue) {
 				// 跳转到后端接口，传递搜索值
-				window.location.assign("{{ url_for('map.search1',id=id,searchValue="小麦")}}")
+				window.location.assign("/searchh/" + {{id}} + "/" + encodeURIComponent(searchValue) + "/");
 			}
 		}
 <!--		fetch('/node_data')-->
