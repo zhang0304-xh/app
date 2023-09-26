@@ -84,6 +84,24 @@ def modify1(id):
 def feedback1(id):
     return render_template('反馈.html',id=id)
 
+@api_v1.route('/setavatar', methods=['POST', 'GET'])
+def setavatar():
+    if request.method == 'POST':
+        uid2 = request.form['uid']
+        uava = request.files['avatar'].read()  # 头像
+        if (uava != None):
+            # data_url = request.files['avatar'].read() # 这里假设前端将Base64字符串放在名为'base64Image'的字段中
+            # print(uava)
+            # 解码Base64字符串
+            # _, encoded = data_url.split(',', 1)
+            image_data = str(base64.b64decode(uava))
+            print(image_data)
+            # 将图像数据存储在数据库中，这里假设使用SQLAlchemy进行数据库操作
+            # user.avatar_data = image_data
+            # db.session.commit()
+            # uava2 = base64.b64encode(uava)
+            User.query.filter(User.uid == uid2).update({"avatar": image_data})
+            db.session.commit()
 @api_v1.route('/modify', methods=['POST', 'GET'])
 def modify():
     if request.method == 'POST':
@@ -100,12 +118,7 @@ def modify():
         if (upass != None):
             User.query.filter(User.uid == uid2).update({"password": upass})
             db.session.commit()
-            # upass2 = request.form['password2']
-            # if(request.form['avatar'] != None):
-            # uava = request.files['avatar']#头像
-            # uava = uava.enconde('base64', 'strict')
-            # user.update({"avatar":uava})
-            pass
+
         uemail = request.form['uemail']  # 密码
         if (uemail != None):
             User.query.filter(User.uid == uid2).update({"email": uemail})
@@ -285,7 +298,16 @@ def recommend(id):
 
 @api_v2.route('/mapp/<int:id>/')
 def mapp(id):
-    return render_template('aaa.html',id=id)
+    f_dict=get_carddata()
+    return render_template('aaa.html',id=id,chart_data=f_dict)
+
+@api_v2.route('/searchh/<int:id>/<string:searchValue>/')
+def search1(id,searchValue):
+    # print(searchValue)
+    # searchValue = request.form.get('searchValue')
+    f_dict=get_sent(searchValue)
+    # print(f_dict)
+    return render_template('aaa.html',id=id,chart_data=f_dict)
 
 @api_v2.route('/questionn/<int:id>/')
 def question1(id):
@@ -454,6 +476,7 @@ def get_carddata():
     all_notes_data2 = [dict(x) for x in set(tuple(x) for x in all_notes_data2)]
     #
     f_dict = {"links": all_links_data2, "nodes": all_notes_data2}
+    print("f_dict:")
     print(f_dict)
 
     return f_dict
@@ -467,9 +490,6 @@ def get_showdata():
     r_note = graph.run(rsas).data()
     rr_note = r_note[0].get("病害")
 
-
-
-
     sas = f'MATCH (n:`病害`)-[r:`症状`]->(m:`症状`) WHERE n.name="{rr_note}"  return  m.name as 症状'
 
     zz_note = graph.run(sas).data()
@@ -478,14 +498,11 @@ def get_showdata():
     if zz_note == [] :
         zz_note = [{'症状':'无'}]
 
-
     sas2 = f'MATCH (n:`病害`)-[r:`危害作物`]->(m:`作物`) WHERE n.name="{rr_note}"  return m.name as 危害作物'
 
     zw_note = graph.run(sas2).data()
     if zw_note == [] :
         zw_note = [{'危害作物':'无'}]
-
-
 
     sas3 = f'MATCH (n:`病害`)-[r:`学名`]->(m:`学名`) WHERE n.name="{rr_note}"  return m.name as 学名'
 
@@ -533,13 +550,14 @@ def getdata():
 
 # 表单接收,请求获取网页结果给后端
 @api_v2.route('/resourceshome', methods=['POST', 'GET'])
-def get_sent():
+def get_sent(word):
+    print(word)
+    print(type(word))
     graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
-    word = request.form.get('word')
-    word = str(word)
+
     sas = f'MATCH (n)-[r]->(m) WHERE n.name="{word}" RETURN DISTINCT n.name as source,type(r) as value,m.name as target order by rand() >3 LIMIT 50 '
 
-    # sas = f'MATCH (n)<-[r]-(m) WHERE n.name="{id}" RETURN n.name as source,type(r) as relation,m.name as target'
+    #sas = f'MATCH (n)<-[r]-(m) WHERE n.name="{id}" RETURN n.name as source,type(r) as relation,m.name as target'
     # link
     c_list = graph.run(sas).data()
 
@@ -550,10 +568,11 @@ def get_sent():
     id_list = []
 
     # node
-    sas2 = 'MATCH (n)<-[r]-(m) WHERE n.name="小麦" RETURN type(n) as ty'
-    nty_list = graph.run(sas2).data()
+    sas2 = f'MATCH (n)<-[r]-(m) WHERE n.name="{word}" RETURN labels(n) as ty'
+    nty_list2 = graph.run(sas2).data()
+    nty_list = nty_list2[0].get('ty')
     # print(nty_list)
-    head_list = [{'group': 0, 'class': f'{nty_list}', 'size': 35, 'name': f'{word}'}]
+    head_list = [{'group': 0, 'class': f'{nty_list[0]}', 'size': 35, 'id': f'{word}'}]
     # print(head_list)
     for i in range(len(c_list)):
         at_list.append(c_list[i].get('target'))
@@ -565,7 +584,7 @@ def get_sent():
     class_number = 1
     size_number = 30
     for n in range(len(c_list) - 1):
-        keys = ["group", "class", "size", "name"]
+        keys = ["group", "class", "size", "id"]
         # if n < summ-1:
         #     sum = n+1;
         # else:
@@ -584,9 +603,11 @@ def get_sent():
         # values = [class_number, f"{rt_list[n]}", size_number, f"{at_list[n]}"]
 
         cyh_dict = dict(zip(keys, values))
-        print(cyh_dict)
+        # print(cyh_dict)
         cn_list.append(cyh_dict)
         all_list2 = head_list + cn_list
 
-    f_dict = {"links": c_list, "nodes": all_list2}
-    return f_dict
+    ff_dict = {"links": c_list, "nodes": all_list2}
+    print("ff_dict:")
+    print(ff_dict)
+    return ff_dict

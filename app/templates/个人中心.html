@@ -50,10 +50,6 @@
 				height: 100%;
 				padding-bottom: 3px;
 				float: left;
-					background: linear-gradient(to bottom right,
-				rgb(155, 180, 150) 0%,
-				rgb(129, 163, 128) 50%,
-				rgb(105, 142, 106) 100%);
 			}
 
 			.ul {
@@ -71,7 +67,7 @@
 
 			li a {
 				display: inline-block;
-				color: white;
+				color: rgb(105, 142, 106);
 				font-size: 20px;
 				text-align: left;
 				padding: 3rpx;
@@ -140,13 +136,16 @@
 			<a href="{{ url_for('map.recommend',id=id) }}" class="radio" target="_blank">每日推荐</a>
 		</div>
 		<div class="main" style="margin-left:230px;">
-			<div class="daohang" style="margin-top:20px;">
+			<div class="daohang" style="margin-top:20px; background-image:url({{ url_for('static', filename='img8.jpg') }})">
 				<ul>
-					<div class="daohang1">
-						<input type="file" id="btn_file" name="file" style="display:none;">
-						<img src="{{url_for('static',filename='img6.jpg')}}" class="img-rounded" id="userHead"
-							style="height:120px;width:120px;border-radius: 50%;border-style: solid;">
-					</div>
+<!--					<div class="daohang1">-->
+<!--						<form action="{{ url_for('my.setavatar') }}" method="POST">-->
+<!--							<input type="file" id="btn_file" name="avatar" style="display:none;">-->
+<!--							<input type="text" name="uid" value={{id}} style="display: none"><br>-->
+<!--						<img src="{{url_for('static',filename='img6.jpg')}}" class="img-rounded" id="userHead"-->
+<!--							style="height:120px;width:120px;border-radius: 50%;border-style: solid;">-->
+<!--						</form>-->
+<!--					</div>-->
 					<li><a href="{{ url_for('my.modify1',id=id) }}" target="menuFrame">个人信息修改</a></li>
 					<li><a href="{{ url_for('my.feedback1',id=id) }}" target="menuFrame">用户反馈</a></li>
 					<li><a href="{{ url_for('my.index') }}">退出登录</a></li>

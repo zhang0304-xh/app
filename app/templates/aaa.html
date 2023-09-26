@@ -253,7 +253,7 @@
 				historySelect.add(option);
 
 				// 跳转到后端接口，传递搜索值
-
+ 				window.location.assign("{{ url_for('map.search1',id=id,searchValue="小麦") }}")
 			}
 		}
 
@@ -263,12 +263,15 @@
 
 			if (selectedValue) {
 				// 跳转到后端接口，传递搜索值
-
+				window.location.assign("{{ url_for('map.search1',id=id,searchValue="小麦")}}")
 			}
 		}
-		fetch('/node_data')
-        .then(response => response.json())
-        .then(chartData => {
+<!--		fetch('/node_data')-->
+<!--        .then(response => response.json())-->
+<!--        .then(chartData => {-->
+			var chartData = '{{ chart_data | tojson | safe }}';
+            chartData = JSON.parse(chartData);
+
             var colorPalette = ['#aaaaff','#9Fc0af','#FFC0CB','#ca635f', '#FFC0CB', '#BA55D3', '#1E90FF', '#7FFFD4', '#FFFF00'];
 
             var chartDom = document.getElementById('chart');
@@ -345,6 +348,6 @@
 				option.series[0].data[params.dataIndex].fixed = true;
 				myChart.setOption(option);
 			});
-        });
+<!--        });-->
 	</script>
 </html>

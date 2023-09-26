@@ -264,18 +264,18 @@
 			var sendhtml = '<li class="t2"><img src="{{url_for('static',filename='img5.jpg')}}"><div class="txt">' + msg + '</div></li>';
 			$("#ui_msg_box").append(sendhtml);
 			scrollMsgBottom();
-			$.ajax({
-				type: "POST",
-				url: "/api/tryChat",
-				data: { 'mydata': msg },
-				success: function(data) {
-					var content = data
-					var sendhtml = '<li class="t1"><img src="{{url_for('static',filename='img4.jpg')}}"><div class="txt">' + content +
-						'</div></li>';
-					$("#ui_msg_box").append(sendhtml);
-					scrollMsgBottom();
-				},
-			});
+				$.ajax({
+					type: "POST",
+					url: "/api/tryChat",
+					data: { 'mydata': msg },
+					success: function(data) {
+						var content = data
+						var sendhtml = '<li class="t1"><img src="{{url_for('static',filename='img4.jpg')}}"><div class="txt">' + content +
+							'</div></li>';
+						$("#ui_msg_box").append(sendhtml);
+						scrollMsgBottom();
+					},
+				});
 		}
 
 		function scrollMsgBottom() {
