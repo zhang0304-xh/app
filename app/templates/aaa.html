@@ -18,20 +18,62 @@
 				style="width:100%; height: 900px; background-color: white;">
 			</div>
 			<div id="node-info"></div>
-<!--			<div id="indicator">-->
-<!--				<h1 style="color:rgb(129, 163, 128);font-size:32px;margin-bottom:720px;text-align:center;margin-left:750px;">知识图谱</h1>-->
-<!--			</div>-->
+			<div id="indicator">
+			</div>
 			<div id="aaa">
-				<form id="search-form" onsubmit="addSearchRecord(); return false;">
-					<div class="gz_search_tab">
-						<input type="text" name="search" id="search">
-						<input type="button" value="搜索" onclick="addSearchRecord()">
+				<div class="gz_search_tab">
+				<input type="text" id="searchInput">
+				<button onclick="search()">搜索</button>
 					</div>
-					<select id="search-history" name="search-history" onchange="searchFromHistory()" class="select">
-						<option value="">选择搜索记录</option>
-					</select>
-				</form>
-				<ul id="historyList"></ul>
+				<p style="color:#bdb2b2;float:left;">搜索记录</p><br><br>
+				<ul id="historyList" style="color:#A8A8A8;cursor: pointer;"></ul>
+				 <button onclick="clearHistory()" class="b1">清除历史记录</button>
+				<div class="a1">
+			<table>
+				<tr>
+					<td height="5"></td>
+				</tr>
+				<tr>
+					<td bgcolor="#aaaaff" height="5px" width="25px">&nbsp;</td>
+					<td>&nbsp;&nbsp;作物&nbsp;&nbsp;</td>
+				</tr>
+				<tr>
+					<td height="5"></td>
+				</tr>
+				<tr>
+					<td bgcolor="#9Fc0af" height="5px" width="25px">&nbsp;</td>
+					<td>&nbsp;&nbsp;病害&nbsp;&nbsp;</td>
+				</tr>
+				<tr>
+					<td height="5"></td>
+				</tr>
+				<tr>
+					<td bgcolor="#FFC0CB" height="5px" width="25px">&nbsp;</td>
+					<td>&nbsp;&nbsp;虫害&nbsp;&nbsp;</td>
+				</tr>
+				<tr>
+					<td height="5"></td>
+				</tr>
+				<tr>
+					<td bgcolor="#BA55D3" height="5px" width="25px">&nbsp;</td>
+					<td>&nbsp;&nbsp;症状&nbsp;&nbsp;</td>
+				</tr>
+				<tr>
+					<td height="5"></td>
+				</tr>
+				<tr>
+					<td bgcolor="#ca635f" height="5px" width="25px">&nbsp;</td>
+					<td>&nbsp;&nbsp;防治方法&nbsp;&nbsp;</td>
+				</tr>
+				<tr>
+					<td height="5"></td>
+				</tr>
+				<tr>
+					<td bgcolor="#CDCDCD" height="5px" width="25px">&nbsp;</td>
+					<td>&nbsp;&nbsp;其他&nbsp;&nbsp;</td>
+				</tr>
+			</table>
+		</div>
 			</div>
 			<div id="info">
 				<h4></h4>
@@ -50,7 +92,26 @@
 			font-family: OpenSans-Light, PingFang SC, Hiragino Sans GB, Microsoft Yahei, Microsoft Jhenghei, sans-serif;
 			margin: 0;
 		}
-
+		.a1 {
+			margin-left: 10px;
+			color:black;
+			margin-top:120px;
+		}
+		.b1{
+		float: right;
+		width: 50px;
+		height:34px;
+		color:black;
+		background-color:-internal-light-dark(rgb(239, 239, 239), rgb(59, 59, 59));
+		border-radius: 3px;
+		border-width: 0;
+		margin: 0;
+		outline: none;
+		font-size: 10px;
+		font-weight: lighter;
+		text-align: center;
+		cursor: pointer;
+		}
 		#indicator {
 			position: absolute;
 			left: 60px;
@@ -162,7 +223,6 @@
 		#info h4 {
 			color: #fff;
 		}
-
 		.gz_search_tab {
 			width: 250px;
 			height: 30px;
@@ -170,6 +230,7 @@
 			background: #FFF;
 			border-radius: 5px 5px 5px 5px;
 			box-shadow: 0 0 10px #999;
+			padding-right:3px;
 		}
 
 		.gz_search_tab input[type="text"] {
@@ -244,39 +305,61 @@
 	</style>
 	<script type="text/javascript">
 
-		function addSearchRecord() {
-			var searchInput = document.getElementById("search");
+		var searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    search();
+                }
+            });
+		function search() {
+            var keyword = document.getElementById('searchInput').value;
+            if (keyword.trim() !== '') {
+                // 保存搜索记录到本地存储
+                var history = localStorage.getItem('searchHistory') || '';
+                history += keyword + ',';
+                localStorage.setItem('searchHistory', history);
 
-			var searchValue = searchInput.value;
+                // 跳转到搜索结果页面
+                var searchValue = encodeURIComponent(keyword);
+                window.location.assign("/searchh/" + {{id}} + "/" + searchValue + "/");
+            }
+        }
 
-			if (searchValue) {
-				var historySelect = document.getElementById("search-history");
-				var option = document.createElement("option");
-				console.log("5959");
-				option.text = searchValue;
-				console.log(option);
-				historySelect.add(option);
-				console.log(historySelect);
-				// 跳转到后端接口，传递搜索值
- 				window.location.assign("/searchh/" +{{id}} + "/" + encodeURIComponent(searchValue) + "/");
-			}
+        function loadHistory() {
+            var history = localStorage.getItem('searchHistory');
+            if (history) {
+                var historyArr = history.split(',');
+                var historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
+                for (var i = historyArr.length - 1; i >= 0; i--) {
+                    if (historyArr[i].trim() !== '') {
+                        var listItem = document.createElement('li');
+                        var searchValue = encodeURIComponent(historyArr[i]);
 
-		}
+                        listItem.innerHTML = '<a onclick="goToSearch(\'' + {{id}} + '\', \'' + searchValue + '\')">' + historyArr[i] + '</a>';
+                        historyList.appendChild(listItem);
+                    }
+                }
+            }
+        }
 
-		function searchFromHistory() {
-			var historySelect = document.getElementById("search-history");
-			var selectedValue = historySelect.value;
-
-			if (selectedValue) {
-				// 跳转到后端接口，传递搜索值
-				window.location.assign("/searchh/" + {{id}} + "/" + encodeURIComponent(searchValue) + "/");
-			}
-		}
+        function goToSearch(id, searchValue) {
+            window.location.assign("/searchh/" + {{id}} + "/" + searchValue + "/");
+        }
+		function clearHistory() {
+            localStorage.removeItem('searchHistory');
+            var historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+        }
+        window.onload = function() {
+            loadHistory();
+        };
 <!--		fetch('/node_data')-->
 <!--        .then(response => response.json())-->
 <!--        .then(chartData => {-->
 			var chartData = '{{ chart_data | tojson | safe }}';
-            chartData = JSON.parse(chartData);
+
+            chartData = JSON.parse(chartData.replace(/\n/g,"\\n").replace(/\r/g,"\\r"));
 
             var colorPalette = ['#aaaaff','#9Fc0af','#FFC0CB','#ca635f', '#FFC0CB', '#BA55D3', '#1E90FF', '#7FFFD4', '#FFFF00'];
 
@@ -304,7 +387,12 @@
                             show: true,
                             fontSize: 14,
                             formatter: function(params) {
-                                return params.data.id + '\n' + params.data.class;
+                                  if((params.data.id).length<=10){
+									return params.data.id;
+								  }else {
+									return (params.data.id).slice(0,10) + '...';
+
+								  }
                             },
                             position: 'inside',
                             distance: 10,
@@ -329,10 +417,24 @@
                             color: '#999'
                         },
                         itemStyle: {
-                            color: function (params) {
-                                return colorPalette[params.data.group % colorPalette.length];
-                            }
-                        }
+<!--                            color: function (params) {-->
+<!--                                return colorPalette[params.data.group % colorPalette.length];-->
+<!--                            }-->
+                            color: function(params) {
+								// 添加根据 class 显示颜色的逻辑
+								const classValue = params.data.class;
+								const colorMap = {
+									"作物": "#aaaaff",
+									"病害": "#9Fc0af",
+									"虫害": "#FFC0CB",
+									"症状":"#BA55D3",
+									"防治方法":"#ca635f",
+									// 其他 class
+								};
+								return colorMap[classValue]||'#CDCDCD';
+							}
+                        },
+
                     }
                 ]
             };
@@ -342,7 +444,7 @@
             myChart.on('click', function(params) {
                 if (params.dataType === 'node') {
                     var nodeInfo = document.getElementById('node-info');
-                    nodeInfo.innerText = params.data.id + '\nClass: ' + params.data.class;
+                    nodeInfo.innerText = params.data.class + '\n' + params.data.id;
                     nodeInfo.style.display = 'block';
                 }
             });

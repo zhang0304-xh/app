@@ -21,7 +21,7 @@ api_v1 = Blueprint('my', __name__)
 @api_v1.route('/')  # 个人中心页面
 def index():
     # message.user = None
-    return redirect(url_for('map.recommend',id=1))
+    return render_template('登陆注册.html')
 
 # 用户登录页面
 @api_v1.route('/login', methods=['POST', 'GET'])
@@ -541,12 +541,19 @@ def get_showdata():
 def getdata():
     a = request.form.get('mydata')
     word = str(a)
-    sent = question_deal(word)
+    try:
+        sent = question_deal(word)
+    except:
+        return "您的问题暂时没有解答"
     print(sent)
-    answ = sent[0].get('content')
-    # chatWord = json.dumps(answ, ensure_ascii=False)
-    print(answ)
-    return answ  # chatWord
+    wd_list = []
+    for i in range(len(sent)):
+        answ = sent[i].get('content')
+        wd_list.append(answ)
+    # chatWord = json.dumps(wd_list, ensure_ascii=False)
+    chatWord=wd_list
+    print(wd_list)
+    return chatWord
 
 # 表单接收,请求获取网页结果给后端
 @api_v2.route('/resourceshome', methods=['POST', 'GET'])

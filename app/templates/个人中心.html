@@ -57,12 +57,13 @@
 				overflow: hidden;
 				text-align: center;
 				padding-right: 10px;
+				padding-top: 30rem;
 			}
 
 			.li {
 				overflow: hidden;
-				margin-bottom: 10px;
 				text-align: center;
+				padding-top:10rem;
 			}
 
 			li a {
@@ -146,7 +147,7 @@
 <!--							style="height:120px;width:120px;border-radius: 50%;border-style: solid;">-->
 <!--						</form>-->
 <!--					</div>-->
-					<li><a href="{{ url_for('my.modify1',id=id) }}" target="menuFrame">个人信息修改</a></li>
+					<li><a href="{{ url_for('my.modify1',id=id) }}" target="menuFrame" style="margin-top:25rem">个人信息修改</a></li>
 					<li><a href="{{ url_for('my.feedback1',id=id) }}" target="menuFrame">用户反馈</a></li>
 					<li><a href="{{ url_for('my.index') }}">退出登录</a></li>
 				</ul>
