@@ -5,7 +5,7 @@ import random
 
 from flask import Blueprint, jsonify
 
-from model.predict import question_deal
+from at import question_deal
 from .models import *
 import model
 from flask import render_template, \
@@ -21,7 +21,7 @@ api_v1 = Blueprint('my', __name__)
 @api_v1.route('/')  # 个人中心页面
 def index():
     # message.user = None
-    return render_template('登陆注册.html')
+    return render_template('question.html',id=1)
 
 # 用户登录页面
 @api_v1.route('/login', methods=['POST', 'GET'])
@@ -321,7 +321,7 @@ def index1(id):
 def get_carddata():
     #假设后端返回的JSON数据为data
 
-    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+    graph = Graph("http://8.130.31.48:7474", auth=("neo4j", "123456"))
 
     # get links这部分要增多的话可以简化
 
@@ -485,7 +485,7 @@ def get_carddata():
 # 每日推荐（随机取一个病害节点，返回其病害名，症状，危害的作物名，学名
 @api_v2.route('/dayrecommended', methods=['POST', 'GET'])
 def get_showdata():
-    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+    graph = Graph("http://8.130.31.48:7474", auth=("neo4j", "123456"))
     rsas = f'MATCH path=(m:`作物`)<-[r]-(p:`病害`)  RETURN  p.name as 病害 order by rand() limit 1'
     r_note = graph.run(rsas).data()
     rr_note = r_note[0].get("病害")
@@ -560,7 +560,7 @@ def getdata():
 def get_sent(word):
     print(word)
     print(type(word))
-    graph = Graph("http://localhost:7474", auth=("neo4j", "12345678"))
+    graph = Graph("http://8.130.31.48:7474", auth=("neo4j", "123456"))
 
     sas = f'MATCH (n)-[r]->(m) WHERE n.name="{word}" RETURN DISTINCT n.name as source,type(r) as value,m.name as target order by rand() >3 LIMIT 50 '
 

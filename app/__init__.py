@@ -11,7 +11,7 @@ def creat_app():
     app.register_blueprint(blueprint=api_v2)
 
     # 配置数据库
-    db_uri = 'mysql+pymysql://root:root@127.0.0.1:3306/APP?charset=utf8mb4'
+    db_uri = 'mysql+pymysql://root:123456@127.0.0.1:3306/APP?charset=utf8mb4'
     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'your_secret_key'
